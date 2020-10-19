@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <vector>
-#include "vec2.h"
-#include "vec3.h"
+#include "MyMath/vector2d.h"
+#include "MyMath/vector3d.h"
 
 struct BoolianFunctions
 {

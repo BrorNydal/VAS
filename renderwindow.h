@@ -6,6 +6,8 @@
 #include <QTimer>
 #include <QElapsedTimer>
 
+#include "Scenes/Scene.h"
+
 class QOpenGLContext;
 class Shader;
 class MainWindow;
@@ -21,7 +23,6 @@ public:
     RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow);
     ~RenderWindow() override;
 
-
     QOpenGLContext *context() { return mContext; }
 
     void exposeEvent(QExposeEvent *) override;
@@ -35,13 +36,14 @@ private:
     QOpenGLContext *mContext;
     bool mInitialized;
 
-    float mFPS = 0.f;
-    bool mWireFrame = false; //check old project for how to do this
+    unsigned int mSceneIndex = 0;
+    std::vector<Scene*> mScenes;
+    void initializeScenes();
+    void nextScene();
+
 
     QTimer *mRenderTimer;           //timer that drives the gameloop
     QElapsedTimer mTimeStart;       //time variable that reads the calculated FPS
-
-
 
     MainWindow *mMainWindow;        //points back to MainWindow to be able to put info in StatusBar
 
@@ -56,14 +58,12 @@ private:
 protected:
     //The QWindow that we inherit from has these functions to capture
     //mouse and keyboard. Uncomment to use (you also have to make the definitions of these functions
-
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void wheelEvent(QWheelEvent *event) override;
+    //
+    //    void mousePressEvent(QMouseEvent *event) override{}
+    //    void mouseMoveEvent(QMouseEvent *event) override{}
     void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
-
+    //    void keyReleaseEvent(QKeyEvent *event) override{}
+    //    void wheelEvent(QWheelEvent *event) override{}
 };
 
 #endif // RENDERWINDOW_H

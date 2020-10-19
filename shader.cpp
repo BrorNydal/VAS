@@ -5,12 +5,9 @@
 #include <iostream>
 #include <QDebug>
 
-#include "globalconstants.h"
-
 //#include "GL/glew.h" - using QOpenGLFunctions instead
 
-Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath, EShaderType shadertype)
-    :   mShaderType(shadertype)
+Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath)
 {
     initializeOpenGLFunctions();    //must do this to get access to OpenGL functions in QOpenGLFunctions
 
@@ -59,10 +56,7 @@ Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath, EShaderType
     }
     else
     {
-        if(FolderPath::PrintInfo)
-        {
-            qDebug() << vertexPath << " shader was successfully compiled!";
-        }
+        qDebug() << vertexPath << " shader was successfully compiled!";
     }
     // Fragment Shader
     fragment = glCreateShader( GL_FRAGMENT_SHADER );
@@ -77,31 +71,25 @@ Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath, EShaderType
     }
     else
     {
-        if(FolderPath::PrintInfo)
-        {
-            qDebug() << fragmentPath << " shader was successfully compiled!";
-        }
+        qDebug() << fragmentPath << " shader was successfully compiled!";
     }
     // Shader Program
-    this->ID = glCreateProgram( );
-    glAttachShader( this->ID, vertex );
-    glAttachShader( this->ID, fragment );
-    glLinkProgram( this->ID );
+    this->program = glCreateProgram( );
+    glAttachShader( this->program, vertex );
+    glAttachShader( this->program, fragment );
+    glLinkProgram( this->program );
     // Print linking errors if any
-    glGetProgramiv( this->ID, GL_LINK_STATUS, &success );
+    glGetProgramiv( this->program, GL_LINK_STATUS, &success );
     if (!success)
     {
-        glGetProgramInfoLog( this->ID, 512, nullptr, infoLog );
+        glGetProgramInfoLog( this->program, 512, nullptr, infoLog );
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
                   << "  " << vertexPath <<  "\n   " << infoLog << std::endl;
     }
     else
     {
-        if(FolderPath::PrintInfo)
-        {
-            qDebug() << "Shader linked successfully!";
-            qDebug() << "";
-        }
+        qDebug() << "Shader linked successfully!";
+        qDebug() << "";
     }
     // Delete the shaders as they're linked into our program now and no longer needed
     glDeleteShader( vertex );
@@ -110,80 +98,10 @@ Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath, EShaderType
 
 void Shader::use()
 {
-    glUseProgram( ID );
+    glUseProgram( this->program );
 }
 
-GLuint Shader::getID() const
+GLuint Shader::getProgram() const
 {
-    return ID;
-}
-
-void Shader::uniformBool(const std::string &name, bool value)
-{
-    int loc = glGetUniformLocation(ID, name.c_str());
-
-    if(loc != -1)
-        glUniform1i(loc, static_cast<int>(value));
-    else
-        qDebug() << "Uniform " << name.c_str() << " doesent exist.";
-}
-
-void Shader::uniformInt(const std::string &name, int value)
-{
-    int loc = glGetUniformLocation(ID, name.c_str());
-
-    if(loc != -1)
-        glUniform1i(loc, value);
-    else
-        qDebug() << "Uniform " << name.c_str() << " doesent exist.";
-}
-
-void Shader::uniformf(const std::string &name, float value)
-{
-    int loc = glGetUniformLocation(ID, name.c_str());
-
-    if(loc != -1)
-        glUniform1f(loc, value);
-    else
-        qDebug() << "Uniform " << name.c_str() << " doesent exist.";
-}
-
-void Shader::uniform2f(const std::string &name, float v1, float v2)
-{
-    int loc = glGetUniformLocation(ID, name.c_str());
-
-    if(loc != -1)
-        glUniform2f(loc, v1, v2);
-    else
-        qDebug() << "Uniform " << name.c_str() << " doesent exist.";
-}
-
-void Shader::uniform2f(const std::string &name, const vec2 &values)
-{
-    uniform2f(name, values.x, values.y);
-}
-
-void Shader::uniform3f(const std::string &name, float v1, float v2, float v3)
-{
-    int loc = glGetUniformLocation(ID, name.c_str());
-
-    if(loc != -1)
-        glUniform3f(loc, v1, v2, v3);
-    else
-        qDebug() << "Uniform " << name.c_str() << " doesent exist.";
-}
-
-void Shader::uniform3f(const std::string &name, const vec3 &values)
-{
-    uniform3f(name, values.x, values.y, values.z);
-}
-
-void Shader::uniformMat4x4f(const std::string &name, const QMatrix4x4 &mat)
-{
-    int loc = glGetUniformLocation(ID, name.c_str());
-
-    if(loc != -1)
-        glUniformMatrix4fv(loc, 1, GL_FALSE, mat.data());
-    else
-        qDebug() << "Uniform " << name.c_str() << " doesent exist.";
+    return program;
 }

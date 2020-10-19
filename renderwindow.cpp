@@ -6,12 +6,12 @@
 #include <QKeyEvent>
 #include <QStatusBar>
 #include <QDebug>
-#include <chrono>
 
 #include <iostream>
-#include "ECS/coreengine.h"
+#include "Scenes/Scene1.h"
+#include "Scenes/scene2.h"
+#include "shader.h"
 #include "mainwindow.h"
-#include "inputsystem.h"
 
 
 RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
@@ -43,8 +43,6 @@ RenderWindow::~RenderWindow()
 // Sets up the general OpenGL stuff and the buffers needed to render a triangle
 void RenderWindow::init()
 {
-    auto fullInitStart = std::chrono::high_resolution_clock::now();
-
     //Connect the gameloop timer to the render function:
     //This makes our render loop
     connect(mRenderTimer, SIGNAL(timeout()), this, SLOT(render()));
@@ -69,17 +67,10 @@ void RenderWindow::init()
     //(Have to use cout to see text- qDebug just writes numbers...)
     //Nice to see if you use the Intel GPU or the dedicated GPU on your laptop
     // - can be deleted
-
-    if(FolderPath::PrintInfo == true)
-    {
-        qDebug() << "";
-        qDebug() << "The active GPU and API: \n";
-        qDebug() << "  Vendor: " << glGetString(GL_VENDOR);
-        qDebug() << "  Renderer: " << glGetString(GL_RENDERER);
-        qDebug() << "  Version: " << glGetString(GL_VERSION);
-
-        qDebug() << "Window Size : " << width() << "x" << height();
-    }
+    std::cout << "The active GPU and API: \n";
+    std::cout << "  Vendor: " << glGetString(GL_VENDOR) << std::endl;
+    std::cout << "  Renderer: " << glGetString(GL_RENDERER) << std::endl;
+    std::cout << "  Version: " << glGetString(GL_VERSION) << std::endl;
 
     //Start the Qt OpenGL debugger
     //Really helpfull when doing OpenGL
@@ -89,30 +80,36 @@ void RenderWindow::init()
     startOpenGLDebugger();
 
     //general OpenGL stuff:
-
-    //enables depth sorting - must then use GL_DEPTH_BUFFER_BIT in glClear
-    //checks if one plane is in front of the other
-    glEnable(GL_DEPTH_TEST);
-
-    //draws only front side of planes
-    glEnable(GL_CULL_FACE);
-
-    //gray color used in glClear GL_COLOR_BUFFER_BIT
-    glClearColor(0.43f, 0.43f, 0.43f,1.0f);
+    glEnable(GL_DEPTH_TEST);            //enables depth sorting - must then use GL_DEPTH_BUFFER_BIT in glClear
+    //    glEnable(GL_CULL_FACE);       //draws only front side of models - usually what you want - test it out!
+    glClearColor(0.4f, 0.4f, 0.4f,1.0f);    //gray color used in glClear GL_COLOR_BUFFER_BIT
 
     glEnable( GL_BLEND );
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    auto fullInitFinish = std::chrono::high_resolution_clock::now();
 
-    if(FolderPath::PrintTimerInfo == true)
-    {
-        qDebug() << "Full initialize timer:"   << (fullInitFinish - fullInitStart).count()  << " seconds";
-    }
+    mScenes.push_back(new Scene1());
+    mScenes.push_back(new Scene2());
+    initializeScenes();
 
-    qDebug() << "(renderwindow) renderwindow initialized!";
+    glBindVertexArray( 0 );
+}
 
-    Engine::initialize(mMainWindow, this);
+void RenderWindow::initializeScenes()
+{
+    for(auto scene = mScenes.begin(); scene != mScenes.end(); scene++)
+        (*scene)->createAndInitialize();
+}
+
+void RenderWindow::nextScene()
+{
+    mSceneIndex += 1;
+
+    if(mSceneIndex >= mScenes.size())
+        mSceneIndex=0;
+
+    mScenes[mSceneIndex]->createAndInitialize();
+
 }
 
 // Called each frame - doing the rendering
@@ -124,7 +121,7 @@ void RenderWindow::render()
     //to clear the screen for each redraw
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    Engine::tick(mFPS);
+    mScenes[mSceneIndex]->draw();
 
     calculateFramerate();
 
@@ -178,7 +175,6 @@ void RenderWindow::calculateFramerate()
             mMainWindow->statusBar()->showMessage(" Time pr FrameDraw: " +
                                                   QString::number(nsecElapsed/1000000.f, 'g', 4) + " ms  |  " +
                                                   "FPS (approximated): " + QString::number(1E9 / nsecElapsed, 'g', 7));
-            mFPS = nsecElapsed/1000000.f;
             frameCount = 0;     //reset to show a new message in 60 frames
         }
     }
@@ -224,38 +220,41 @@ void RenderWindow::startOpenGLDebugger()
     }
 }
 
-void RenderWindow::mouseReleaseEvent(QMouseEvent *event)
-{
-    InputSystem::mouseReleaseEvent(event);
-}
-
-void RenderWindow::mousePressEvent(QMouseEvent *event)
-{
-    InputSystem::mousePressEvent(event);
-}
-
-void RenderWindow::mouseMoveEvent(QMouseEvent *event)
-{
-    InputSystem::updateScreenSize(width(), height());
-    InputSystem::mouseMoveEvent(event);
-}
-
-void RenderWindow::wheelEvent(QWheelEvent *event)
-{
-    InputSystem::wheelEvent(event);
-}
-
-void RenderWindow::keyReleaseEvent(QKeyEvent *event)
-{
-    InputSystem::keyReleaseEvent(event);
-}
-
 void RenderWindow::keyPressEvent(QKeyEvent *event)
 {
-    InputSystem::keyPressEvent(event);
-
     if (event->key() == Qt::Key_Escape) //Shuts down whole program
     {
         mMainWindow->close();
+    }
+    if(event->key() == Qt::Key_Space)
+    {
+        nextScene();
+    }
+    if(event->key() == Qt::Key_M)
+    {
+    }
+    if(event->key() == Qt::Key_2)
+    {
+        mScenes[mSceneIndex]->mViewMatrix.rotate(1.f, QVector3D(0.f, 0.f, 1.f));
+    }
+    if(event->key() == Qt::Key_1)
+    {
+        mScenes[mSceneIndex]->mViewMatrix.rotate(-1.f, QVector3D(0.f, 0.f, 1.f));
+    }
+    if(event->key() == Qt::Key_3)
+    {
+        mScenes[mSceneIndex]->mViewMatrix.rotate(1.f, QVector3D(0.f, 1.f, 0.f));
+    }
+    if(event->key() == Qt::Key_4)
+    {
+        mScenes[mSceneIndex]->mViewMatrix.rotate(-1.f, QVector3D(0.f, 1.f, 0.f));
+    }
+    if(event->key() == Qt::Key_Z)
+    {
+        mScenes[mSceneIndex]->mViewMatrix.rotate(1.f, QVector3D(1.f, 0.f, 0.f));
+    }
+    if(event->key() == Qt::Key_X)
+    {
+        mScenes[mSceneIndex]->mViewMatrix.rotate(-1.f, QVector3D(1.f, 0.f, 0.f));
     }
 }

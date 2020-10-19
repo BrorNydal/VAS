@@ -3,10 +3,7 @@
 
 #include <QSurfaceFormat>
 #include <QDebug>
-#include <QHBoxLayout>
 
-#include "ECS/coreengine.h"
-#include "resourcemanager.h"
 #include "renderwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -14,8 +11,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     //this sets up what's in the mainwindow.ui
     ui->setupUi(this);
-    //this->setStyleSheet("background-color: rgb(80, 80, 80); border: 3px solid rgb(60, 60, 60);");
-    //ui->CentralWidget->setLayout(new QHBoxLayout());
     init();
 }
 
@@ -23,83 +18,6 @@ MainWindow::~MainWindow()
 {
     delete mRenderWindow;
     delete ui;
-}
-
-void MainWindow::frameUpdate()
-{    
-    updateDetails();
-}
-
-void MainWindow::updateSceneTree()
-{
-    ui->sceneTree->clear();
-
-    for(unsigned int w = 0; w < Engine::getWorlds().size(); w++)
-    {
-        QTreeWidgetItem *treeItem = new QTreeWidgetItem(ui->sceneTree);
-        treeItem->setText(w, Engine::getWorlds().at(w).getTag().c_str());
-
-        for(unsigned int e = 0; e < Engine::getWorlds().at(w).getEntityManager()->getEntities().size(); e++)
-        {
-            QTreeWidgetItem *childItem = new QTreeWidgetItem();
-            childItem->setText(1, QString::number(Engine::getWorlds().at(w).getEntityManager()->getEntities().at(e).ID));
-            treeItem->addChild(childItem);
-        }
-    }
-}
-
-void MainWindow::updateMeshView()
-{
-    ui->meshList->clear();
-    ui->meshComboBox->clear();
-
-    for(unsigned int m = 0; m < ResourceManager::getMeshComponents().size(); m++)
-    {
-        QListWidgetItem *listItem = new QListWidgetItem(ui->meshList);
-        auto text = ResourceManager::getMesh(m)->tag.c_str();
-        listItem->setText(text);
-
-        ui->meshComboBox->addItem(text);
-    }
-}
-
-void MainWindow::updateDetails()
-{
-    if(Engine::getSelectedEntity() == nullptr)
-    {
-        ui->detailsDock->setEnabled(false);
-        ui->detailsDock->setStyleSheet("color: rgb(40,40,40);");
-    }
-    else
-    {
-        ui->detailsDock->setEnabled(true);
-        ui->detailsDock->setStyleSheet("color: rgb(255,255,255);");
-
-        TransformComponent *tc = static_cast<TransformComponent*>(Engine::getSelectedEntity()->getComponent(EComponentType::transform));
-        MeshComponent *mc = static_cast<MeshComponent*>(Engine::getSelectedEntity()->getComponent(EComponentType::mesh));
-
-        assert(tc != nullptr && mc != nullptr);
-
-        ui->locationX->setValue(tc->location.x());
-        ui->locationY->setValue(tc->location.y());
-        ui->locationZ->setValue(tc->location.z());
-
-        ui->rotationX->setValue(tc->rotation.x());
-        ui->rotationY->setValue(tc->rotation.y());
-        ui->rotationZ->setValue(tc->rotation.z());
-
-        ui->scaleX->setValue(tc->scale.x());
-        ui->scaleY->setValue(tc->scale.y());
-        ui->scaleZ->setValue(tc->scale.z());
-
-        int i = ui->meshComboBox->findText(mc->tag.c_str());
-        ui->meshComboBox->setCurrentIndex(i);
-    }
-}
-
-void MainWindow::showEntityDetails(Entity *ent)
-{
-
 }
 
 void MainWindow::init()
@@ -148,188 +66,10 @@ void MainWindow::init()
     //sets the keyboard input focus to the RenderWindow when program starts
     // - can be deleted, but then you have to click inside the renderwindow to get the focus
     mRenderWindowContainer->setFocus();
-
-    //ui->sceneDock->setFixedSize(QSize(100, 200));
-
-    qDebug() << "(mainwindow) mainwindow initialized!";
 }
 
-void MainWindow::on_overviewType_activated(const QString &arg1)
+//Example of a slot called from the button on the top of the program.
+void MainWindow::on_pushButton_clicked()
 {
-    if(arg1 == "Meshes")
-    {
-        qDebug() << "Show meshes.";
-
-
-        ui->overviewWidgets->setCurrentIndex(1);
-    }
-    else if(arg1 == "Scenes")
-    {
-        qDebug() << "Show scenes.";
-
-        ui->overviewWidgets->setCurrentIndex(0);
-    }
-    else if(arg1 == "Entities")
-    {
-        qDebug() << "Show entities.";
-
-        ui->overviewWidgets->setCurrentIndex(2);
-    }
-    else{
-        qDebug() << "Combo box non-existent!";
-    }
-
-    qDebug() << "Combobox activated : " << arg1;
-}
-
-void MainWindow::on_meshComboBox_activated(const QString &arg1)
-{
-    if(Engine::getSelectedEntity() != nullptr)
-    {
-        int mci = ResourceManager::getMeshComponentIndex(arg1.toStdString());
-
-        if(mci < 0)
-            qDebug() << "invalid mesh";
-
-        if(mci >= 0)
-        {
-            Engine::getSelectedEntity()->attachComponent(ResourceManager::getMesh(mci));
-        }
-        else
-        {
-            qDebug() << "(mainwindow) No such mesh.";
-        }
-    }
-    else
-    {
-        qDebug() << "(mainwindow) Selected object nullptr.";
-    }
-}
-
-void MainWindow::on_sceneTree_itemClicked(QTreeWidgetItem *item, int column)
-{
-    if(item != nullptr)
-    {
-        qDebug() << item->text(column);
-
-        bool isInt;
-        int ent = item->text(column).toInt(&isInt);
-
-        qDebug() << "Entity index = " << ent;
-
-        if(isInt == false)
-        {
-            qDebug() << "Selected item is a world object.";
-            return;
-        }
-        else
-        {
-            qDebug() << "Selected item is an entity.";
-        }
-
-        Engine::selectEntity(&Engine::getEditorWorld()->getEntityManager()->getEntities().at(ent));
-    }
-    else
-        qDebug() << "Selected item is pointing to null.";
-
-}
-
-void MainWindow::on_locationX_valueChanged(double arg1)
-{
-    if(Engine::getSelectedEntity()!=nullptr)
-    {
-        TransformComponent *tc = static_cast<TransformComponent*>(Engine::getSelectedEntity()->getComponent(EComponentType::transform));
-
-        tc->location.setX(arg1);
-    }
-}
-
-void MainWindow::on_locationY_valueChanged(double arg1)
-{
-    if(Engine::getSelectedEntity()!=nullptr)
-    {
-        TransformComponent *tc = static_cast<TransformComponent*>(Engine::getSelectedEntity()->getComponent(EComponentType::transform));
-
-        tc->location.setY(arg1);
-    }
-}
-
-void MainWindow::on_locationZ_valueChanged(double arg1)
-{
-    if(Engine::getSelectedEntity()!=nullptr)
-    {
-        TransformComponent *tc = static_cast<TransformComponent*>(Engine::getSelectedEntity()->getComponent(EComponentType::transform));
-
-        tc->location.setZ(arg1);
-    }
-}
-
-void MainWindow::on_rotationX_valueChanged(double arg1)
-{
-    if(Engine::getSelectedEntity()!=nullptr)
-    {
-        TransformComponent *tc = static_cast<TransformComponent*>(Engine::getSelectedEntity()->getComponent(EComponentType::transform));
-
-        tc->rotation.setX(arg1);
-    }
-}
-
-void MainWindow::on_rotationY_valueChanged(double arg1)
-{
-    if(Engine::getSelectedEntity()!=nullptr)
-    {
-        TransformComponent *tc = static_cast<TransformComponent*>(Engine::getSelectedEntity()->getComponent(EComponentType::transform));
-
-        tc->rotation.setY(arg1);
-    }
-}
-
-void MainWindow::on_rotationZ_valueChanged(double arg1)
-{
-    if(Engine::getSelectedEntity()!=nullptr)
-    {
-        TransformComponent *tc = static_cast<TransformComponent*>(Engine::getSelectedEntity()->getComponent(EComponentType::transform));
-
-        tc->rotation.setZ(arg1);
-    }
-}
-
-void MainWindow::on_scaleX_valueChanged(double arg1)
-{
-    if(Engine::getSelectedEntity()!=nullptr)
-    {
-        TransformComponent *tc = static_cast<TransformComponent*>(Engine::getSelectedEntity()->getComponent(EComponentType::transform));
-
-        tc->scale.setX(arg1);
-    }
-}
-
-void MainWindow::on_scaleY_valueChanged(double arg1)
-{
-    if(Engine::getSelectedEntity()!=nullptr)
-    {
-        TransformComponent *tc = static_cast<TransformComponent*>(Engine::getSelectedEntity()->getComponent(EComponentType::transform));
-
-        tc->scale.setY(arg1);
-    }
-}
-
-void MainWindow::on_scaleZ_valueChanged(double arg1)
-{
-    if(Engine::getSelectedEntity()!=nullptr)
-    {
-        TransformComponent *tc = static_cast<TransformComponent*>(Engine::getSelectedEntity()->getComponent(EComponentType::transform));
-
-        tc->scale.setZ(arg1);
-    }
-}
-
-void MainWindow::on_playButton_clicked()
-{
-    Engine::play();
-}
-
-void MainWindow::on_stopButton_clicked()
-{
-    Engine::stop();
+    qDebug() << "Button clicked";
 }

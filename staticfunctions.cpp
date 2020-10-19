@@ -1,9 +1,9 @@
-#include "staticfunctions.h"
-#include "math.h"
+#include "StaticFunctions.h"
+#include <math.h>
 
 bool BoolianFunctions::floatComparison(float a, float b, float accuracy)
 {
-    return std::fabs(a - b) < accuracy;
+    return fabs(a - b) < accuracy;
 }
 
 void BoolianFunctions::boolianSwitch(bool &b)
