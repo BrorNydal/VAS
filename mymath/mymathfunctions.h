@@ -6,14 +6,17 @@
 #include "MyMath/vector2d.h"
 #include "MyMath/vector3d.h"
 
-struct BoolianFunctions
+struct MyMathFunctions
 {
-    static bool floatComparison (float a, float b, float accuracy = 0.05f);
-    static void boolianSwitch   (bool &b);
+    static Vector3D centroidOfTriangle(class OldTriangle *triangle);
+    static Vector3D centroidOfTriangle(Vector3D v1, Vector3D v2, Vector3D v3);
+    static Vector3D average3DVector(std::vector<Vector3D> vs);
+
+    static bool floatComparison(float a, float b, float accuracy = 0.05f);
 };
 
 
-struct SortFunctions
+struct MySortFunctions
 {
     template<class T>
     static void swap(T *xp, T *yp)
@@ -23,7 +26,6 @@ struct SortFunctions
         *yp = temp;
     }
 
-    //Sorting without indexes for each value
     template<class T>
     static void selectionSort(T arr[], unsigned int n)
     {
@@ -45,7 +47,6 @@ struct SortFunctions
         }
     }
 
-    //Sorting with indexes for each value
     template<class T>
     static void selectionSort(T arr[], unsigned int indxArr[], unsigned int n)
     {

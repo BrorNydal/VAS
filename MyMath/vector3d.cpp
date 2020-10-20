@@ -1,5 +1,6 @@
 #include "vector3d.h"
-#include "StaticFunctions.h"
+
+#include "mymathfunctions.h"
 
 #include <math.h>
 
@@ -27,11 +28,11 @@ Vector3D Vector3D::calculateNormal(Vertex v1, Vertex v2)
     return calculateNormal(Vector3D(v1.x, v1.y, v1.z), Vector3D(v2.x, v2.y, v2.z));
 }
 
-bool Vector3D::operator ==(const Vector3D &v) const
+bool Vector3D::operator ==(Vector3D v)
 {
-    return  BoolianFunctions::floatComparison(xyz[0],v.xyz[0]) &&
-            BoolianFunctions::floatComparison(xyz[1],v.xyz[1]) &&
-            BoolianFunctions::floatComparison(xyz[2],v.xyz[2]);
+    return  MyMathFunctions::floatComparison(xyz[0],v.xyz[0]) &&
+            MyMathFunctions::floatComparison(xyz[1],v.xyz[1]) &&
+            MyMathFunctions::floatComparison(xyz[2],v.xyz[2]);
 }
 
 const Vector3D &Vector3D::operator =(const Vector3D &v)

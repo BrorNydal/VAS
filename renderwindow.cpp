@@ -13,6 +13,16 @@
 #include "shader.h"
 #include "mainwindow.h"
 
+/*
+ * Scene1 lager første scenen du ser og består av oppgave 5.2.10
+ * Scene2 lager andre scenen du ser og består av oppgave 5.2.11
+ * Du kan bytte scene ved å trykke "Space"
+ * Roter kamera ved tastene 1 til 4, x og z
+ *
+ *
+ *
+ *
+ */
 
 RenderWindow::RenderWindow(const QSurfaceFormat &format, MainWindow *mainWindow)
     : mContext(nullptr), mInitialized(false), mMainWindow(mainWindow)
@@ -87,28 +97,22 @@ void RenderWindow::init()
     glEnable( GL_BLEND );
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
     mScenes.push_back(new Scene1());
     mScenes.push_back(new Scene2());
-    initializeScenes();
+    mScenes[0]->createAndInitialize();
 
     glBindVertexArray( 0 );
 }
 
-void RenderWindow::initializeScenes()
-{
-    for(auto scene = mScenes.begin(); scene != mScenes.end(); scene++)
-        (*scene)->createAndInitialize();
-}
-
 void RenderWindow::nextScene()
 {
-    mSceneIndex += 1;
+    mSceneIndex+=1;
 
     if(mSceneIndex >= mScenes.size())
         mSceneIndex=0;
 
-    mScenes[mSceneIndex]->createAndInitialize();
+    if(mScenes[mSceneIndex]->mInitialized == false)
+        mScenes[mSceneIndex]->createAndInitialize();
 
 }
 
@@ -232,6 +236,10 @@ void RenderWindow::keyPressEvent(QKeyEvent *event)
     }
     if(event->key() == Qt::Key_M)
     {
+//        if(mScenes[mSceneIndex]->mTurnTable == false)
+//            mScenes[mSceneIndex]->mTurnTable = true;
+//        else
+//            mScenes[mSceneIndex]->mTurnTable = false;
     }
     if(event->key() == Qt::Key_2)
     {

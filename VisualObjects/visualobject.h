@@ -22,6 +22,8 @@ public:
     virtual void init() = 0; //Skal bare ha et parameter, matrix uniform
     virtual void draw() = 0;
 
+    bool modelView;
+
     void setHeight(float h) {mMatrix(2,3) = h;}
     void setPosition(Vector3D pos){
         mMatrix(0, 3) = pos.x();
@@ -57,8 +59,6 @@ protected:
 
     GLenum mDrawMode;
     unsigned int mShaderIndex;
-
-    std::string mName;
 };
 
 #endif // VISUALOBJECT_H

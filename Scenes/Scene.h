@@ -3,18 +3,15 @@
 
 #include <QOpenGLFunctions_4_1_Core>
 #include <vector>
-#include <iostream>
-#include "StaticFunctions.h"
+
 #include "VisualObjects/visualobject.h"
 #include "shader.h"
 
 class Scene : public QOpenGLFunctions_4_1_Core
 {
 protected:
-    //Objects for this scene
-    std::vector<VisualObject*> mObjects;
-    std::vector<VisualObject*> mEditorObjects;
-    std::vector<VisualObject*> mPlayObjects;
+    //Objects needed for current task
+    std::vector<VisualObject*> mObjects;    
 
     //FOR ALL VECTORS
     //Index 0 = Plain Shader
@@ -48,16 +45,6 @@ protected:
     GLint mLightIntensityUniform;
     GLint mLightColorUniform;
 
-    //STANDARD SCENE-OBJECTS
-
-    //Editor mode
-    VisualObject *mXYZ;
-    VisualObject *mGrid;
-
-    //Playmode
-    class Light * mLight;
-
-
 public:
     Scene();
     ~Scene();
@@ -67,8 +54,8 @@ public:
     virtual void draw();
 
     //Creates and pushes objects to mObjects-vector
-    virtual void listObjects();
-    virtual void setUniforms();
+    virtual void listObjects() = 0;
+    virtual void setUniforms() = 0;
     //Calls createObjects() and init() in order
     void createAndInitialize();
 
@@ -76,15 +63,17 @@ public:
     QMatrix4x4 mViewMatrix;
     QMatrix4x4 mProjectionMatrix;
 
+    //Has scene been initialized
+    bool mInitialized = false;
+
+    //If we want to spin our scene
+    bool mTurnTable = false;
+
 protected:
     //Initializes all elements of mObjects
     void init();
 
-    virtual void setTransformations();
-    void editorModeSwitch() {BoolianFunctions::boolianSwitch(mEditorMode);}
-
-private:
-    bool mEditorMode;
+    virtual void setTransformations() = 0;
 };
 
 #endif // OPPGAVE_H

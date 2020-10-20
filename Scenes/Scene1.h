@@ -3,11 +3,22 @@
 
 #include "Scenes/Scene.h"
 
+//TASK 5.2.10
+
 class Scene1 : public Scene
 {
-protected:
-    class Terrain *mTerrain;
-    class ObjFile *mPlayerObject;
+private:
+    //List of objects used in this scene and this task (5.2.10)
+    class VisualObject      *mXYZ;
+    class VisualObject      *mGrid;
+    class TriangleSurface   *mTriangleSurface;
+    class Light             *mLight;
+    class BezierCurve       *mBCLightMover;
+    class VisualObject      *mSimulationObject;
+    class ContourLine       *mContourLine;
+
+    unsigned int mLightMoverIndex   = 0;
+    unsigned int mLightSpeed        = 1;
 
 public:
     Scene1();

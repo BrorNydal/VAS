@@ -38,9 +38,7 @@ private:
 
     unsigned int mSceneIndex = 0;
     std::vector<Scene*> mScenes;
-    void initializeScenes();
     void nextScene();
-
 
     QTimer *mRenderTimer;           //timer that drives the gameloop
     QElapsedTimer mTimeStart;       //time variable that reads the calculated FPS

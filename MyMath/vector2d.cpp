@@ -1,4 +1,5 @@
 #include "vector2d.h"
+
 #include <cmath>
 
 Vector2D::Vector2D()

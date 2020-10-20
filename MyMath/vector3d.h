@@ -24,12 +24,12 @@ public:
         else
             return NULL;
     }
-    void setX(float x) {xyz[0] = x;}
-    void setY(float y) {xyz[1] = y;}
-    void setZ(float z) {xyz[2] = z;}
-    float x() const    {return xyz[0];}
-    float y() const    {return xyz[1];}
-    float z() const    {return xyz[2];}
+    void setX(float x){xyz[0] = x;}
+    void setY(float y){xyz[1] = y;}
+    void setZ(float z){xyz[2] = z;}
+    float x() {return xyz[0];}
+    float y() {return xyz[1];}
+    float z() {return xyz[2];}
 
     Vector3D calculateNormal(Vector3D v1, Vector3D v2);
     Vector3D calculateNormal(Vertex v1, Vertex v2);
@@ -37,7 +37,7 @@ public:
     friend std::ostream& operator<< (std::ostream&, const Vector3D&);
     friend std::istream& operator>> (std::istream&, const Vector3D&);
 
-    bool operator == (const Vector3D &v) const;
+    bool operator == (Vector3D v);
     const Vector3D& operator = (const Vector3D& v); // Assignment
     Vector3D operator + (const Vector3D& v) const;  // Addition
     Vector3D operator - (const Vector3D& v) const;  // Subtraction

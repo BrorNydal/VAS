@@ -3,13 +3,13 @@
 Grid::Grid()
     :   mSquareSize(1.f), mRow(9), mCol(9)
 {
-
-}
-
-Grid::Grid(unsigned int row, unsigned int col, float squareSize)
-    :   mSquareSize(squareSize), mRow(row), mCol(col)
-{
-
+    for(unsigned int y = 0; y < mRow; y++)
+    {
+        for(unsigned int x = 0; x < mCol; x++)
+        {
+            mVertices.push_back(Vertex(x * mSquareSize, y * mSquareSize, 0.f,    0.f, 0.f, 0.f));
+        }
+    }
 }
 
 void Grid::init()
@@ -18,7 +18,6 @@ void Grid::init()
 
     initializeOpenGLFunctions();
 
-    createGrid();
     initDrawLines();
 
     glGenVertexArrays(1, &mVAO);
@@ -33,14 +32,11 @@ void Grid::init()
     //Vertex Buffer Object to hold vertices - VBO
     glBufferData( GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(mVertices.size()*sizeof( Vertex )), mVertices.data(), GL_STATIC_DRAW );
 
-    glVertexAttribPointer(0, 3, GL_FLOAT,GL_FALSE, sizeof( Vertex ), (GLvoid*)nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT,GL_FALSE,6 * sizeof(GLfloat), (GLvoid*)nullptr);
     glEnableVertexAttribArray(0);
 
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ),  (GLvoid*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ),  (GLvoid*)(6 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEAB);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<unsigned int>(mIndices.size()) * sizeof(GLuint), mIndices.data(), GL_STATIC_DRAW);
@@ -95,17 +91,6 @@ void Grid::initDrawTriangles()
                 mIndices.push_back( (y * mCol) + (x + 1)                );
                 mIndices.push_back( (y * mCol) + (x + 1) + (mCol)       );
                 mIndices.push_back( (y * mCol) + (x + 1) + (mCol - 1)   );
-        }
-    }
-}
-
-void Grid::createGrid()
-{
-    for(unsigned int y = 0; y < mRow; y++)
-    {
-        for(unsigned int x = 0; x < mCol; x++)
-        {
-            mVertices.push_back(Vertex(x * mSquareSize, y * mSquareSize, 0.f));
         }
     }
 }

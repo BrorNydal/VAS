@@ -1,13 +1,6 @@
 #include "Scenes/Scene.h"
 
-#include "GlobalConstants.h"
-
-#include "VisualObjects/xyz.h"
-#include "VisualObjects/grid.h"
-#include "VisualObjects/light.h"
-
 Scene::Scene()
-    :   mXYZ(new XYZ()), mGrid(new Grid(9, 9)), mLight(new Light()), mEditorMode(false)
 {
     initializeScene();
 }
@@ -22,11 +15,8 @@ void Scene::initializeScene()
 {
     initializeOpenGLFunctions();
 
-    mPlainShader = new Shader((GlobalConstans::ProjectDirectory + "plainvertex.vert").c_str(),
-                              (GlobalConstans::ProjectDirectory + "plainfragment.frag").c_str());
-    mPhongShader = new Shader((GlobalConstans::ProjectDirectory + "PhongVertex.vert").c_str(),
-                              (GlobalConstans::ProjectDirectory + "PhongFragment.frag").c_str());
-
+    mPlainShader = new Shader("../GSOpenGL2020/plainvertex.vert", "../GSOpenGL2020/plainfragment.frag");
+    mPhongShader = new Shader("../GSOpenGL2020/PhongVertex.vert", "../GSOpenGL2020/PhongFragment.frag");
     mShaders.push_back(mPlainShader);
     mShaders.push_back(mPhongShader);
 
@@ -51,28 +41,21 @@ void Scene::initializeScene()
     mLightPositionUniform   = glGetUniformLocation( mPhongShader->getProgram(), "lightPosition" );
     mLightIntensityUniform  = glGetUniformLocation( mPhongShader->getProgram(), "lightIntensity");
     mLightColorUniform      = glGetUniformLocation( mPhongShader->getProgram(), "lightColor"    );
-
-
 }
 
 void Scene::init()
 {
     setUniforms();
 
-    for(auto object = mObjects.begin(); object != mObjects.end(); object++)
-        (*object)->init();
-}
-
-void Scene::setTransformations()
-{
-
+    for(unsigned int i = 0; i < mObjects.size(); i++)
+        mObjects[i]->init();
 }
 
 void Scene::draw()
-{    
-    for(auto object = mObjects.begin(); object != mObjects.end(); object++)
+{
+    for(auto it = mObjects.begin(); it != mObjects.end(); it++)
     {
-        unsigned int index = (*object)->getShaderIndex();
+        unsigned int index = (*it)->getShaderIndex();
         glUseProgram(mShaders[index]->getProgram());
 
         glUniformMatrix4fv(mPlainViewUniform, 1, GL_FALSE, mViewMatrix.data());
@@ -81,37 +64,20 @@ void Scene::draw()
         glUniformMatrix4fv(mPhongViewUniform, 1, GL_FALSE, mViewMatrix.data());
         glUniformMatrix4fv(mPhongProjectionUniform, 1, GL_FALSE, mProjectionMatrix.data());
 
-        (*object)->draw();
+        (*it)->draw();
 
         if(mShaders[index] == mPhongShader)
         {
-            glUniform3f(mViewPosition, -mViewMatrix(0, 3), -mViewMatrix(1, 3), -mViewMatrix(2, 3));
+            glUniform3f(mViewPosition, 0.f, 0.f, 8.f);
         }
     }
-}
 
-void Scene::listObjects()
-{
-    mObjects.push_back(mXYZ);
-    mObjects.push_back(mGrid);
-    mObjects.push_back(mLight);
-
-    mEditorObjects.push_back(mXYZ);
-    mEditorObjects.push_back(mGrid);
-
-    mPlayObjects.push_back(mLight);
-}
-
-void Scene::setUniforms()
-{
-    mXYZ->setTransformMatrixUniform(mPlainTransformMatrixUniform);
-    mGrid->setTransformMatrixUniform(mPlainTransformMatrixUniform);
-
-    //LIGHT
-    mLight->setTransformMatrixUniform(mPhongTransformMatrixUniform);
-    mLight->setIntensityUniform(mLightIntensityUniform);
-    mLight->setLightColorUniform(mLightColorUniform);
-    mLight->setLightPositionUniform(mLightPositionUniform);
+    if(mTurnTable){
+        for(auto it = mObjects.begin(); it != mObjects.end(); it++)
+        {
+            (*it)->rotateZ(0.2f);
+        }
+    }
 }
 
 void Scene::createAndInitialize()
@@ -121,4 +87,6 @@ void Scene::createAndInitialize()
     init();
 
     setTransformations();
+
+    mInitialized = true;
 }

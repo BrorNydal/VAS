@@ -11,7 +11,7 @@ class OctahedronBall : public VisualObject
     int mIndex;               // brukes i rekursjon, til å bygge m_vertices
 
 public:
-    OctahedronBall(float radius = 1.f, int rekursions = 2);
+    OctahedronBall(float radius = 1.f, int rekursions = 0);
 
     virtual void init() override;
     virtual void draw() override;

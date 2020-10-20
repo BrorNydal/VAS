@@ -3,14 +3,12 @@
 
 #include <iostream>
 
-
 class Vertex
 {
 public:
     Vertex();
     Vertex(float X, float Y, float Z,
-           float R = 0, float G = 0, float B = 0,
-           float U = 0, float V = 0);
+           float R = 0, float G = 0, float B = 0);
 
     //Positions
     float x, y, z;
@@ -18,15 +16,8 @@ public:
     //Normals
     float r, g, b;
 
-    //UV
-    float u, v;
-
-    void setXYZ(float X, float Y, float Z)  {x = X; y = Y; z = Z;}
-    void setRGB(float R, float G, float B)  {r = R; g = G; b = B;}
-    void setUV (float U, float V)           {u = V; v = V;}
-    void setXYZ(const class Vector3D &xyz);
-    void setRGB(const class Vector3D &rgb);
-    void setUV (const class Vector2D &uv);
+    void setXYZ(float X, float Y, float Z){x = X; y = Y; z = Z;}
+    void setRGB(float R, float G, float B){r = R; g = G; b = B;}
 
     friend std::ostream& operator << (std::ostream& os, Vertex &v);
     friend std::istream& operator >> (std::istream& is, Vertex &v);

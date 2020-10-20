@@ -19,6 +19,11 @@ uniform vec3 lightPosition;
 
 void main()
 {
+//    if(fragPosition.z > heightCurve && fragPosition.z < heightCurve + heightCurveThickness)
+//        color = vec4(0.0, 0.0, 0.0, 1.0);
+//    else
+//        color = vec4(0.0, 0.7, 0.7, 1.0);
+
     color = vec4(0.0, 0.7, 0.7, 1.0);
 
     // ambient

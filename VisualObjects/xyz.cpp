@@ -39,10 +39,15 @@ void XYZ::init()
 
    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (GLvoid*)(3 * sizeof(GLfloat)));
    glEnableVertexAttribArray(1);
+
+   modelView = false;
 }
 
 void XYZ::draw()
 {
+    if(modelView == true)
+        mMatrix.rotate(0.5f, QVector3D(0.f, 0.f, 1.f));
+
     glUniformMatrix4fv( mMatrixUniform, 1, GL_FALSE, mMatrix.data());
     glBindVertexArray( mVAO );
     glDrawArrays(GL_LINES, 0, static_cast<int>(mVertices.size()));

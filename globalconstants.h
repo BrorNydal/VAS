@@ -1,15 +1,12 @@
-#ifndef CONSTANTGLOBALS_H
-#define CONSTANTGLOBALS_H
+#ifndef GLOBALCONSTANTS_H
+#define GLOBALCONSTANTS_H
 
-#include <iostream>
+#include <string>
 
-namespace GlobalConstans {
-    inline const std::string dir                =   "../";
-    inline const std::string ProjectName        =   "GSOpenGL2020";
-    inline const std::string ProjectDirectory   =   dir + ProjectName + "/";
-    inline const std::string ResourceDirectory  =   ProjectDirectory + "Resources/";
-    inline const std::string ObjFileDirectory   =   ResourceDirectory + "ObjFiles/";
+namespace Path {
+    static const std::string Project = "../VAS/";
+    static const std::string Datasets = Project + "datasets/";
+
 }
-//GSOpenGL2020\Resources\ObjFiles\TestObject.obj
 
-#endif // CONSTANTGLOBALS_H
+#endif // GLOBALCONSTANTS_H
