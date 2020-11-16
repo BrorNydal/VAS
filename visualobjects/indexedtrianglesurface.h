@@ -1,38 +1,54 @@
 #ifndef INDEXEDTRIANGLESURFACE_H
 #define INDEXEDTRIANGLESURFACE_H
 
-#include "VisualObjects/visualobject.h"
+#include "visualobject.h"
 #include "triangle.h"
 #include "beziercurve.h"
+#include "structs.h"
+
 
 class IndexedTriangleSurface : public VisualObject
 {
-public:
-    IndexedTriangleSurface(std::string data, std::string index);
+private:
+    std::string mVertexFile;
+    std::string mIndexFile;
+    float mScale;
+    bool mIsLasFile;
+    QVector2D mResolution{100.f,100.f};
+    std::vector<QVector3D> mLasData;
+    SurfaceLimits mLimit;
+    QVector2D mTotalSize;
+    unsigned int mCol, mRow;
 
-    virtual void init() override;
-    virtual void draw() override;
+public:
+    IndexedTriangleSurface(std::string data, std::string index, float scale = 1.f, bool las = false);
+    void run();
+
+    virtual void draw(Shader &shader) override;
 
     void printDebugInformation();
 
+    void lasOptions(bool las = true, QVector2D size = {0.f, 0.f});
+
     std::vector<Triangle> getTriangles() {return mTriangles;}
 
-    //Oppgave 5.2.11
+    SurfaceLimits findSurfaceLimit(std::string filename);
+    void readConvertedLasFile(std::string filename);
+    void assertIndices();
 
-    void readDataFile(std::string fileName);
-    void readIndexFile(std::string fileName);
+    void readCutsomFile(std::string filename);
+    void readCustomIndexFile(std::string filename);
     void writeFile();
 
     void setDisplayObject(VisualObject *display) {mSimulationObject = display;}
 
-    //Seraches for the given coordinates and saves locations searched to mBarycentricSearchTrace
-    void barycentricSearchPath(float x, float y);
-    void barycentricSearchPath(Vector2D coordinates);
-    void barycentricHeightSearch(VisualObject *object, unsigned int initialTriangle = 0);
 
-    unsigned int mTriangleIndex = 0;
-    std::vector<Vector3D> mBarycentricSearchTrace;
+    float barycentricHeightSearch(QVector2D loc);
+    const Triangle &getCurrentTriangle() const;
+
+    std::vector<QVector3D> mBarycentricSearchTrace;
     std::vector<unsigned int> mBarycentricSearchTriangleTrace;
+
 protected:
     void calculateSurfaceNormal();
     void calculateVertexNormal();
@@ -41,8 +57,7 @@ protected:
 
     BezierCurve mBezierCurve;
 
-    unsigned int mObjectTriangleIndex;
-    unsigned int mIndex = 0;
+    unsigned int mObjectTriangleIndex{0};
 };
 
 #endif // INDEXEDTRIANGLESURFACE_H

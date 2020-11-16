@@ -15,7 +15,7 @@ public:
     TriangleSurface(std::string fileName);
 
     virtual void init() override;
-    virtual void draw() override;
+    virtual void draw(Shader &shader) override;
 
     std::vector<OldTriangle> getTriangles(){return mTriangles;}
 
@@ -30,9 +30,9 @@ public:
 
     //Seraches for the given coordinates and saves locations searched to mBarycentricSearchTrace
     void barycentricSearchPath(float x, float y);
-    void barycentricSearchPath(Vector2D loc);
+    void barycentricSearchPath(QVector2D loc);
 
-    std::vector<Vector3D> mBarycentricSearchTrace;
+    std::vector<QVector3D> mBarycentricSearchTrace;
 protected:
     VisualObject * mSimulationObject;
     float mDelta;

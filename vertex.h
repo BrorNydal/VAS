@@ -2,13 +2,15 @@
 #define VERTEX_H
 
 #include <iostream>
+#include <QVector3D>
 
 class Vertex
 {
 public:
     Vertex();
     Vertex(float X, float Y, float Z,
-           float R = 0, float G = 0, float B = 0);
+           float R = 0.f, float G = 0.f, float B = 0.f,
+           float U = 0.f, float V = 0.f);
 
     //Positions
     float x, y, z;
@@ -16,8 +18,16 @@ public:
     //Normals
     float r, g, b;
 
+    //texcoords
+    float u, v;
+
     void setXYZ(float X, float Y, float Z){x = X; y = Y; z = Z;}
     void setRGB(float R, float G, float B){r = R; g = G; b = B;}
+
+    operator QVector3D ();
+
+    bool operator < (const Vertex &v);
+
 
     friend std::ostream& operator << (std::ostream& os, Vertex &v);
     friend std::istream& operator >> (std::istream& is, Vertex &v);

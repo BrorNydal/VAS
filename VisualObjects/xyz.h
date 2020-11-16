@@ -11,9 +11,6 @@ private:
 public:
    XYZ();
    ~XYZ() override;
-
-   virtual void init() override;
-   virtual void draw() override;
 };
 
 #endif // XYZ_H

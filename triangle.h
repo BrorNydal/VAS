@@ -1,18 +1,19 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
-#include "MyMath/vector3d.h"
+#include <QVector3D>
 #include "vertex.h"
 
 struct Triangle{
     Triangle(unsigned int id) {ID = id;}
     unsigned int ID;
 
-    Vector3D mSurfaceNormal;
-    Vector3D mCentroid;
+    QVector3D mSurfaceNormal;
+    QVector3D mCentroid;
 
-    std::vector<unsigned int> mIndecies;
-    std::vector<int> mAdjacentTriangles;
+    unsigned int mIndecies[3] = {0,0,0};
+    int mAdjacentTriangles[3] = {-1,-1,-1};
+    QVector3D mPosition[3];
 };
 
 class OldTriangle
@@ -22,8 +23,8 @@ private:
     unsigned int ID;
 
 protected:
-    Vector3D mSurfaceNormal;
-    Vector3D mCentroid;
+    QVector3D mSurfaceNormal;
+    QVector3D mCentroid;
     float mSurfaceArea;
 
 public:
@@ -32,18 +33,18 @@ public:
     unsigned int getID() {return ID;}
 
     std::vector<OldTriangle*> mAdjentTriangles;
-    std::vector<Vector3D> mPositions;
+    std::vector<QVector3D> mPositions;
 
     //Checks if input value is listed in the existing vector
     bool isTriangleListed(OldTriangle* t);
 
     //Set functions
-    void setFaceNormal(Vector3D norm) {mSurfaceNormal = norm; mSurfaceArea = norm.length()/2.f;}
-    void setCentroid(Vector3D centroid) {mCentroid = centroid;}
+    void setFaceNormal(QVector3D norm) {mSurfaceNormal = norm; mSurfaceArea = norm.length()/2.f;}
+    void setCentroid(QVector3D centroid) {mCentroid = centroid;}
 
     //Get Functions
-    Vector3D getCentroid() {return mCentroid;}
-    Vector3D getSurfaceNormal() {return mSurfaceNormal;}
+    QVector3D getCentroid() {return mCentroid;}
+    QVector3D getSurfaceNormal() {return mSurfaceNormal;}
 
     //Operators
     bool operator == (OldTriangle t) {return ID == t.ID;}

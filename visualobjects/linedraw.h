@@ -8,11 +8,8 @@ class LineDraw : public VisualObject
 public:
     LineDraw();
 
-    virtual void init() override;
-    virtual void draw() override;
-
-    void addSetOfPositions(std::vector<Vector3D> positions);
-    void addPosition(Vector3D pos);
+    void addSetOfPositions(std::vector<QVector3D> positions);
+    void addPosition(QVector3D pos);
     void lerpBetweenPositions(VisualObject *object, float speed = 0.01f);
 
 protected:

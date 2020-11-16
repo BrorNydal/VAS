@@ -5,24 +5,29 @@ CONFIG      += c++17
 
 TARGET      = 3D-programmering
 
+INCLUDEPATH += \
+    ./scenes \
+    ./visualobjects \
+
 SOURCES += main.cpp \
-    MyMath/matrix4x4.cpp \
-    MyMath/mymathfunctions.cpp \
-    MyMath/vector2d.cpp \
-    MyMath/vector3d.cpp \
-    MyMath/vector4d.cpp \
-    Scenes/Scene.cpp \
-    Scenes/Scene1.cpp \
-    Scenes/scene2.cpp \
-    VisualObjects/beziercurve.cpp \
-    VisualObjects/contourline.cpp \
-    VisualObjects/grid.cpp \
-    VisualObjects/indexedtrianglesurface.cpp \
-    VisualObjects/light.cpp \
-    VisualObjects/linedraw.cpp \
-    VisualObjects/octahedronball.cpp \
-    VisualObjects/trianglesurface.cpp \
-    VisualObjects/xyz.cpp \
+    camera.cpp \
+    mymathfunctions.cpp \
+    physicsengine.cpp \
+    scenes/scene.cpp \
+    scenes/scene1.cpp \
+    scenes/scene2.cpp \
+    scenes/scene3.cpp \
+    visualobjects/beziercurve.cpp \
+    visualobjects/bspline.cpp \
+    visualobjects/contourline.cpp \
+    visualobjects/grid.cpp \
+    visualobjects/indexedtrianglesurface.cpp \
+    visualobjects/light.cpp \
+    visualobjects/linedraw.cpp \
+    visualobjects/octahedronball.cpp \
+    visualobjects/trianglesurface.cpp \
+    visualobjects/visualobject.cpp \
+    visualobjects/xyz.cpp \
     renderwindow.cpp \
     shader.cpp \
     mainwindow.cpp \
@@ -30,24 +35,26 @@ SOURCES += main.cpp \
     vertex.cpp
 
 HEADERS += \
-    MyMath/matrix4x4.h \
-    MyMath/mymathfunctions.h \
-    MyMath/vector2d.h \
-    MyMath/vector3d.h \
-    MyMath/vector4d.h \
-    Scenes/Scene.h \
-    Scenes/Scene1.h \
-    Scenes/scene2.h \
-    VisualObjects/beziercurve.h \
-    VisualObjects/contourline.h \
-    VisualObjects/grid.h \
-    VisualObjects/indexedtrianglesurface.h \
-    VisualObjects/light.h \
-    VisualObjects/linedraw.h \
-    VisualObjects/octahedronball.h \
-    VisualObjects/trianglesurface.h \
-    VisualObjects/visualobject.h \
-    VisualObjects/xyz.h \
+    camera.h \
+    mymathfunctions.h \
+    physicsengine.h \
+    scenes/scene.h \
+    scenes/scene1.h \
+    scenes/scene2.h \
+    scenes/scene3.h \
+    staticfunctions.h \
+    structs.h \
+    visualobjects/beziercurve.h \
+    visualobjects/bspline.h \
+    visualobjects/contourline.h \
+    visualobjects/grid.h \
+    visualobjects/indexedtrianglesurface.h \
+    visualobjects/light.h \
+    visualobjects/linedraw.h \
+    visualobjects/octahedronball.h \
+    visualobjects/trianglesurface.h \
+    visualobjects/visualobject.h \
+    visualobjects/xyz.h \
     globalconstants.h \
     renderwindow.h \
     shader.h \

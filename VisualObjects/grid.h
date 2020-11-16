@@ -11,9 +11,6 @@ class Grid : public VisualObject
 public:
     Grid();
 
-    virtual void init() override;
-    virtual void draw() override;
-
     void initDrawLines();
     void initDrawTriangles();
 };

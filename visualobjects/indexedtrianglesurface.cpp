@@ -1,58 +1,55 @@
 #include "indexedtrianglesurface.h"
 
-#include "MyMath/mymathfunctions.h"
+#include "globalconstants.h"
+#include "staticfunctions.h"
+#include "mymathfunctions.h"
 
 #include <fstream>
+#include <QVector2D>
 
-IndexedTriangleSurface::IndexedTriangleSurface(std::string data, std::string index)
-    :   mObjectTriangleIndex(0)
+//ceilf
+#include <cmath>
+//fabs
+#include <math.h>
+
+IndexedTriangleSurface::IndexedTriangleSurface(std::string data, std::string index, float scale, bool las)
+    :   mVertexFile(data), mIndexFile(index), mScale(scale), mIsLasFile(las), mObjectTriangleIndex(0)
 {
-    readDataFile(data);
-    readIndexFile(index);
-    calculateSurfaceNormal();
-    calculateVertexNormal();
-    writeFile();
-    barycentricSearchPath(3.5, 3.5);
+    mTag = "triangle surface";
 
-    //Use Phong Shader
-    mShaderIndex = 1;
-}
-
-void IndexedTriangleSurface::init()
-{
-    mMatrix.setToIdentity();
-
-    initializeOpenGLFunctions();
-
-    glGenVertexArrays(1, &mVAO);
-    glGenBuffers(1, &mEAB);
-    glGenBuffers(1, &mVBO);
-
-    //what object to draw
-    glBindVertexArray(mVAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-
-    //Vertex Buffer Object to hold vertices - VBO
-    glBufferData( GL_ARRAY_BUFFER, mVertices.size()*sizeof( Vertex ), mVertices.data(), GL_STATIC_DRAW );
-
-    glVertexAttribPointer(0, 3, GL_FLOAT,GL_FALSE,6 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ),  (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEAB);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<unsigned int>(mIndices.size()) * sizeof(GLuint), mIndices.data(), GL_STATIC_DRAW);
 
 }
 
-void IndexedTriangleSurface::draw()
+void IndexedTriangleSurface::run()
 {
-    glUniformMatrix4fv( mMatrixUniform, 1, GL_FALSE, mMatrix.data());
-    glBindVertexArray( mVAO );
-    glDrawElements(GL_TRIANGLES, mIndices.size(), GL_UNSIGNED_INT, NULL);
+    if(mIsLasFile)
+    {
+        readConvertedLasFile(mVertexFile);
+    }
+    else
+    {
+        readCutsomFile(mVertexFile);
+
+        if(mIndexFile != "none")
+        {
+            readCustomIndexFile(mIndexFile);
+            calculateSurfaceNormal();
+            calculateVertexNormal();
+            writeFile();
+        }
+        else
+        {
+
+        }
+    }
 }
+
+void IndexedTriangleSurface::draw(Shader &shader)
+{
+    shader.uniform3f("color", 4.f, 2.f, 3.f);
+    VisualObject::draw(shader);
+}
+
 
 void IndexedTriangleSurface::printDebugInformation()
 {
@@ -62,33 +59,161 @@ void IndexedTriangleSurface::printDebugInformation()
 
 }
 
-void IndexedTriangleSurface::readDataFile(std::string fileName)
+void IndexedTriangleSurface::lasOptions(bool las, QVector2D size)
 {
-    std::ifstream file("../GSOpenGL2020/DataSett/" + fileName + ".txt");
+    mIsLasFile = las;
+    mResolution = size;
+}
+
+SurfaceLimits IndexedTriangleSurface::findSurfaceLimit(std::string filename)
+{
+    std::ifstream file(Path::Datasets + filename + ".txt");
+
+    //Fin the smallest x,y and z value
+    if(file.is_open())
+    {
+        float v1, v2, v3;
+        file >> v1 >> v2 >> v3;
+
+        //Initialize the values as the first values found, and then search the rest
+        mLimit.x = {v1, v1};
+        mLimit.y = {v2, v2};
+        mLimit.z = {v3, v3};
+
+        while(!file.eof())
+        {
+            file >> v1 >> v2 >> v3;
+
+            if(v1 < mLimit.x[0])
+                mLimit.x[0] = v1;
+            else if(v1 > mLimit.x[1])
+                mLimit.x[1] = v1;
+
+            if(v2 < mLimit.y[0])
+                mLimit.y[0] = v2;
+            else if(v2 > mLimit.y[1])
+                mLimit.y[1] = v2;
+
+            if(v3 < mLimit.z[0])
+                mLimit.z[0] = v3;
+            else if(v3 > mLimit.z[1])
+                mLimit.z[1] = v3;
+        }
+
+        file.close();
+    }
+
+    return mLimit;
+}
+
+void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
+{
+    std::ifstream file(Path::Datasets + filename + ".txt");
+
+    findSurfaceLimit(filename);
+
+    qDebug() << "resolution x" << mResolution.x();
+    qDebug() << "resolution y" << mResolution.y();
+
+    qDebug() << "limit x :" << mLimit.x.y() - mLimit.x.x();
+    qDebug() << "limit y :" << mLimit.y.y() - mLimit.y.x();
+
+    qDebug() << "size of file x" << ceilf((fabs(mLimit.offsetMinX()) - fabs(mLimit.offsetMaxX())));
+    qDebug() << "size of file y" << ceilf((fabs(mLimit.offsetMinY()) - fabs(mLimit.offsetMaxY())));
+
+    mCol = ceilf((fabs(mLimit.offsetMaxX()) - fabs(mLimit.offsetMinX())) / mResolution.x());
+    mRow = ceilf((fabs(mLimit.offsetMaxY()) - fabs(mLimit.offsetMinY())) / mResolution.y());
+
+    qDebug() << "col :" << mCol;
+    qDebug() << "row :" << mRow;
+
+    for(unsigned int y = 0; y < mRow; y++)
+    {
+        for(unsigned int x = 0; x < mCol; x++)
+        {
+            mVertices.push_back(Vertex((float)x * (float)mResolution.x(), (float)y * (float)mResolution.y() , 0, 0, 0, 1, (float) x, (float) y));
+        }
+    }
+
+    mTotalSize[0] = (float)mResolution.x() * (float)col;
+    mTotalSize[1] = (float)mResolution.y() * (float)row;
+
+    qDebug() << "size :" << mTotalSize;
+
+    assertIndices();
+
+    if (file.is_open())
+    {
+        //file while-loop count
+        unsigned int count = 0;
+
+        while(!file.eof())
+        {
+            //read three floats from file
+            float v1, v2, v3;
+            file >> v1 >> v2 >> v3;
+
+//            mLasData.push_back(QVector3D((v1 + mLimit.offsetMinX()) * mScale, (v2 + mLimit.offsetMinY()) * mScale, (v3 + mLimit.offsetMaxZ()) * mScale));
+//            mIndices.push_back(count);
+
+            count++;
+        }
+
+        file.close();
+
+
+    }
+    else
+    {
+        qDebug() << "(indexedtrianglesurface) Can't read datafile!";
+    }
+
+    qDebug() << "surface size :" << mVertices.size();
+}
+
+void IndexedTriangleSurface::assertIndices()
+{
+
+}
+
+void IndexedTriangleSurface::readCutsomFile(std::string filename)
+{
+    std::ifstream file(Path::Datasets + filename + ".txt");
+
+    findSurfaceLimit(filename);
 
     if (file.is_open())
     {
         //If we successfully open the new file, we clear the existing vertices
         mVertices.clear();
 
-        unsigned int count = 0; //while-loop count
+        //file while-loop count
+        unsigned int count = 0;
 
         while(!file.eof())
         {
+            //read three floats from file
             float v1, v2, v3;
             file >> v1 >> v2 >> v3;
 
-            mVertices.push_back(Vertex(v1, v2, v3));
+            mVertices.push_back(Vertex((v1 + mLimit.offsetMinX()) * mScale, (v2 + mLimit.offsetMinY()) * mScale, (v3 + mLimit.offsetMaxZ()) * mScale));
+
             count++;
         }
 
         file.close();
     }
+    else
+    {
+        qDebug() << "(indexedtrianglesurface) Can't read datafile!";
+    }
+
+    qDebug() << "surface size :" << mVertices.size();
 }
 
-void IndexedTriangleSurface::readIndexFile(std::string fileName)
+void IndexedTriangleSurface::readCustomIndexFile(std::string filename)
 {
-    std::ifstream file("../GSOpenGL2020/DataSett/" + fileName + ".txt");
+    std::ifstream file(Path::Datasets + filename + ".txt");
 
     if (file.is_open())
     {
@@ -100,23 +225,27 @@ void IndexedTriangleSurface::readIndexFile(std::string fileName)
         while(!file.eof())
         {
             unsigned int v1, v2, v3;
-            file >> v1 >> v2 >> v3;
+            file >> v1 >> v2 >> v3;            
 
             mIndices.push_back(v1);
             mIndices.push_back(v2);
             mIndices.push_back(v3);
 
             Triangle t(count);
-            t.mIndecies.push_back(v1);
-            t.mIndecies.push_back(v2);
-            t.mIndecies.push_back(v3);
+            t.mIndecies[0] = v1;
+            t.mIndecies[1] = v2;
+            t.mIndecies[2] = v3;
+
+            t.mPosition[0] = mVertices[v1];
+            t.mPosition[1] = mVertices[v2];
+            t.mPosition[2] = mVertices[v3];
 
             unsigned int i1, i2, i3;
             file >> i1 >> i2 >> i3;
 
-            t.mAdjacentTriangles.push_back(i1);
-            t.mAdjacentTriangles.push_back(i2);
-            t.mAdjacentTriangles.push_back(i3);
+            t.mAdjacentTriangles[0] = i1;
+            t.mAdjacentTriangles[1] = i2;
+            t.mAdjacentTriangles[2] = i3;
 
             mTriangles.push_back(t);
 
@@ -126,17 +255,14 @@ void IndexedTriangleSurface::readIndexFile(std::string fileName)
         file.close();
     }
     else{
-        QString errormsg = QString("[ERROR] Cannot open file from path: ") +
-                QString::fromStdString(std::string("../GSOpenGL2020/DataSett/") + fileName + ".txt") +
-                " , " + typeid (this).name();
-        qDebug() << errormsg;
+        qDebug() << "(indexedtrianglesurface) Can't read indexfile!";
     }
 }
 
 void IndexedTriangleSurface::writeFile()
 {
     std::string vertexFileName = "Oppg_5_2_11_VertexData";
-    std::ofstream vertexFile("../GSOpenGL2020/DataSett/" + vertexFileName + ".txt");
+    std::ofstream vertexFile(Path::Datasets + vertexFileName + ".txt");
 
     if(vertexFile.is_open())
     {
@@ -146,16 +272,13 @@ void IndexedTriangleSurface::writeFile()
             vertexFile << mVertices[i] << "\n";
         }
     }else{
-        QString errormsg = QString("[ERROR] Cannot create file to path: ") +
-                QString::fromStdString(std::string("../GSOpenGL2020/DataSett/" + vertexFileName)) +
-                " , " + typeid (this).name();
-        qDebug() << errormsg;
+        qDebug() << "(indexedtrianglesurface) Can't write data file!";
     }
 
     vertexFile.close();
 
     std::string indexFileName = "Oppg_5_2_11_IndexData";
-    std::ofstream indexFile("../GSOpenGL2020/DataSett/" + indexFileName + ".txt");
+    std::ofstream indexFile(Path::Datasets + indexFileName + ".txt");
 
     if(indexFile.is_open())
     {
@@ -174,125 +297,88 @@ void IndexedTriangleSurface::writeFile()
         }
     }else
     {
-        QString errormsg = QString("[ERROR] Cannot create file to path: ") +
-                    QString::fromStdString(std::string("../GSOpenGL2020/DataSett/" + indexFileName)) +
-                    " , " + typeid (this).name();
-        qDebug() << errormsg;
+        qDebug() << "(indexedtrianglesurface) Can't write index file!";
     }
 
     vertexFile.close();
 }
 
-void IndexedTriangleSurface::barycentricSearchPath(float x, float y)
+float IndexedTriangleSurface::barycentricHeightSearch(QVector2D loc)
 {
-    bool found = false;
+    QVector3D t[3];
 
-    while (!found) {
-        Vector3D t[3];
+    //qDebug() << "triangle index :" << mObjectTriangleIndex;
+
+    for(unsigned int i = 0; i < 3; i++)
+    {
+        //qDebug() << "Triangle" << i << getCurrentTriangle().mPosition[i];
+        t[i] = getCurrentTriangle().mPosition[i];
+    }
+
+    //qDebug() << "LOC :" << loc;
+    QVector3D bc = BarycentricCoordinates(loc, QVector2D(t[0].x(), t[0].y()),
+                                               QVector2D(t[1].x(), t[1].y()),
+                                               QVector2D(t[2].x(), t[2].y()));
+
+    //qDebug() << "BARYC :" << bc;
+
+    //on triangle
+    if(bc.x() >= 0.f && bc.y() >= 0.f && bc.z() >= 0.f)
+    {
+        return (t[0].z() * bc.x() + t[1].z() * bc.y() + t[2].z() * bc.z());
+    }
+    //outside triangle
+    else
+    {
         for(unsigned int i = 0; i < 3; i++)
-            t[i] = Vector3D(mVertices[mTriangles[mTriangleIndex].mIndecies[i]].x,
-                    mVertices[mTriangles[mTriangleIndex].mIndecies[i]].y,
-                    mVertices[mTriangles[mTriangleIndex].mIndecies[i]].z);
-
-        Vector3D bc = Vector2D(x, y).barycentricCoordinates(Vector2D(t[0].x(), t[1].y()), Vector2D(t[1].x(), t[1].y()), Vector2D(t[2].x(), t[2].y()));
-
-        mBarycentricSearchTrace.push_back(Vector3D(mTriangles[mTriangleIndex].mCentroid));
-        mBarycentricSearchTriangleTrace.push_back(mTriangles[mTriangleIndex].ID);
-
-        //qDebug() << "Centroid : " << mTriangles[mTriangleIndex].mCentroid.x() << mTriangles[mTriangleIndex].mCentroid.y() << mTriangles[mTriangleIndex].mCentroid.z();
-
-        if(bc.x() >= 0 && bc.y() >= 0 && bc.z() >= 0)
         {
-            found = true;
-        }
-        else
-        {
-            const unsigned int size = 3;
-            float bcf[size] = {bc.x(), bc.y(), bc.z()};
-            unsigned int indecies[size] = {0, 1, 2};
-
-            //qDebug() << "Triangle"<< mTriangleIndex << ":";
-            //qDebug() << "Unsorted Baryc : " << bcf[0] << bcf[1] << bcf[2];
-
-            MySortFunctions::selectionSort<float>(bcf, indecies, size);
-
-
-//            for(unsigned int i = 0; i < size; i++)
-//            {
-//                qDebug() << "Sorted baryc" << i << ":" << bcf[i] << "," << indecies[i];
-//            }
-
-            for(unsigned int i = 0; i < size; i++)
+            if(bc[i] < 0.f)
             {
-                if(mTriangles[mTriangleIndex].mAdjacentTriangles[indecies[i]] != -1)
+                if(getCurrentTriangle().mAdjacentTriangles[i] != -1)
                 {
-                    mTriangleIndex = static_cast<unsigned int>(mTriangles[mTriangleIndex].mAdjacentTriangles[indecies[i]]);
+                    //qDebug() << "OPP " << i << "," << getCurrentTriangle().mAdjacentTriangles[i];
+                    mObjectTriangleIndex = getCurrentTriangle().mAdjacentTriangles[i];
                     break;
+                }
+                else
+                {
+                    //qDebug() << "INVALID " << i;
+                    return (t[0].z() * bc.x() + t[1].z() * bc.y() + t[2].z() * bc.z());
                 }
             }
         }
 
+        return barycentricHeightSearch(loc);
     }
 }
 
-void IndexedTriangleSurface::barycentricSearchPath(Vector2D coordinates)
+const Triangle &IndexedTriangleSurface::getCurrentTriangle() const
 {
-    barycentricSearchPath(coordinates.x(), coordinates.y());
-}
-
-void IndexedTriangleSurface::barycentricHeightSearch(VisualObject *object, unsigned int initialTriangle)
-{
-    Vector3D objPosition = object->getPosition();
-
-    Vector3D t[3];
-    for(unsigned int i = 0; i < 3; i++)
-        t[i] = Vector3D(mVertices[mTriangles[mObjectTriangleIndex].mIndecies[i]].x,
-                        mVertices[mTriangles[mObjectTriangleIndex].mIndecies[i]].y,
-                        mVertices[mTriangles[mObjectTriangleIndex].mIndecies[i]].z);
-
-    Vector3D bc = Vector2D(objPosition.x(), objPosition.y()).barycentricCoordinates(Vector2D(t[0].x(), t[0].y()),
-                                                                                    Vector2D(t[1].x(), t[1].y()),
-                                                                                    Vector2D(t[2].x(), t[2].y()));
-    if(bc.x() >= 0 && bc.y() >= 0 && bc.z() >= 0)
-    {
-        object->setHeight(t[0].z() * bc.x() + t[1].z() * bc.y() + t[2].z() * bc.z() + 0.2f);
-    }
-    else
-    {
-        if(mIndex < mBarycentricSearchTriangleTrace.size())
-        {
-            mObjectTriangleIndex = mBarycentricSearchTriangleTrace[mIndex];
-            mIndex ++;
-        }
-        if(mIndex == mBarycentricSearchTriangleTrace.size())
-            mIndex = 0;
-    }
+    return mTriangles[mObjectTriangleIndex];
 }
 
 void IndexedTriangleSurface::calculateSurfaceNormal()
 {
     for(auto it = mTriangles.begin(); it != mTriangles.end(); it++)
     {
-        Vector3D temp1 = Vector3D(mVertices[(*it).mIndecies[0]].x, mVertices[(*it).mIndecies[0]].y, mVertices[(*it).mIndecies[0]].z);
-        Vector3D temp2 = Vector3D(mVertices[(*it).mIndecies[1]].x, mVertices[(*it).mIndecies[1]].y, mVertices[(*it).mIndecies[1]].z);
-        Vector3D temp3 = Vector3D(mVertices[(*it).mIndecies[2]].x, mVertices[(*it).mIndecies[2]].y, mVertices[(*it).mIndecies[2]].z);
+        QVector3D temp1 = QVector3D(mVertices[(*it).mIndecies[0]].x, mVertices[(*it).mIndecies[0]].y, mVertices[(*it).mIndecies[0]].z);
+        QVector3D temp2 = QVector3D(mVertices[(*it).mIndecies[1]].x, mVertices[(*it).mIndecies[1]].y, mVertices[(*it).mIndecies[1]].z);
+        QVector3D temp3 = QVector3D(mVertices[(*it).mIndecies[2]].x, mVertices[(*it).mIndecies[2]].y, mVertices[(*it).mIndecies[2]].z);
 
-        Vector3D surfaceNormal;
+        QVector3D surfaceNormal;
 
         //Calculate the relative surface normal using temporary vectors
         //In all cases with all triangles pointing positive in one direction, we can measure the respective axis-value recieved
-        if(temp1.calculateNormal(mVertices[(*it).mIndecies[1]], mVertices[(*it).mIndecies[2]]).z() > 0) //All surfaces are pointing in positive z-direction
-            surfaceNormal = temp1.calculateNormal(mVertices[(*it).mIndecies[1]], mVertices[(*it).mIndecies[2]]);
+        if(CalculateTriangleNormal(temp1, temp2, temp3).z() > 0) //All surfaces are pointing in positive z-direction
+            surfaceNormal = CalculateTriangleNormal(temp1, temp2, temp3);
         else
-            surfaceNormal = temp1.calculateNormal(mVertices[(*it).mIndecies[2]], mVertices[(*it).mIndecies[1]]);
+            surfaceNormal = CalculateTriangleNormal(temp1, temp3, temp2);
 
         surfaceNormal.normalize();
         (*it).mSurfaceNormal = surfaceNormal;
-         //qDebug() << (*it).surfaceNormal.x() << (*it).surfaceNormal.y() << (*it).surfaceNormal.z();
 
         //While we already have its position, grab its centroid
         (*it).mCentroid = MyMathFunctions::centroidOfTriangle(temp1, temp2, temp3);
-        //qDebug() << (*it).mCentroid.x() << (*it).mCentroid.y() << (*it).mCentroid.z();
     }
 }
 
@@ -301,14 +387,14 @@ void IndexedTriangleSurface::calculateVertexNormal()
     //For each vertex we calculate average normals of surrounding surfaces
     for(unsigned int i = 0; i < mVertices.size(); i++)
     {
-        std::vector<Vector3D> surfaceNormals;
+        std::vector<QVector3D> surfaceNormals;
 
         //For each triangle we look at its indecies
         for(unsigned int j = 0; j < mTriangles.size(); j++)
         {
             //Each triangle index will be between 0 and mVertices.size()
             //And atleast one triangle will have an index equal to i
-            for(unsigned int k = 0; k < mTriangles[j].mIndecies.size(); k++)
+            for(unsigned int k = 0; k < 3; k++)
             {
                 if(mTriangles[j].mIndecies[k] == i)
                 {
@@ -323,7 +409,7 @@ void IndexedTriangleSurface::calculateVertexNormal()
             qDebug() << "[WARNING] Found no index corresponding to vertex in calculateNormals() \n" << "Vertex normal will be set to 0, 0, 0";
 
         //Calculate vertex normal and set current vertex normals to it
-        Vector3D averageNormal = MyMathFunctions::average3DVector(surfaceNormals);
+        QVector3D averageNormal = MyMathFunctions::average3DVector(surfaceNormals);
         mVertices[i].setRGB(averageNormal.x(), averageNormal.y(), averageNormal.z());
     }
 }

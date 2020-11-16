@@ -4,61 +4,58 @@
 #include <QOpenGLFunctions_4_1_Core>
 #include <iostream>
 #include "vertex.h"
-#include "MyMath/vector3d.h"
-#include "MyMath/vector2d.h"
+#include "structs.h"
 #include <QMatrix4x4>
+#include "shader.h"
+
 
 class VisualObject : public QOpenGLFunctions_4_1_Core
 {
-public:
-    VisualObject()
-        :   mShaderIndex(0)
-    {}
-    ~VisualObject() {
-        glDeleteVertexArrays( 1, &mVAO );
-           glDeleteBuffers( 1, &mVBO );
-    }
-
-    virtual void init() = 0; //Skal bare ha et parameter, matrix uniform
-    virtual void draw() = 0;
-
-    bool modelView;
-
-    void setHeight(float h) {mMatrix(2,3) = h;}
-    void setPosition(Vector3D pos){
-        mMatrix(0, 3) = pos.x();
-        mMatrix(1, 3) = pos.y();
-        mMatrix(2, 3) = pos.z();
-    }
-    Vector3D getPosition() {
-        return Vector3D(mMatrix(0, 3),
-                        mMatrix(1, 3),
-                        mMatrix(2, 3));
-    }
-    void scale(float factor){
-        mMatrix.scale(factor);
-    }
-    void rotateZ(float factor){
-        mMatrix.rotate(factor, QVector3D(0.f, 0.f, 1.f));
-    }
-
-    void setTransformMatrixUniform(GLint matrixUniform) {mMatrixUniform = matrixUniform;}
-    QMatrix4x4 getTransformationMatrix() {return mMatrix;}
-
-    unsigned int getShaderIndex() {return mShaderIndex;}
-    Vertex getVertex(unsigned int i) {return mVertices[i];}
 protected:
+    std::string mTag;
+
     std::vector<Vertex> mVertices;
     std::vector<unsigned int> mIndices;
 
-    GLuint mVAO{0};
-    GLuint mVBO{0};
-    GLuint mEAB{0};
-    GLint mMatrixUniform{0};
-    QMatrix4x4 mMatrix;
+    Transform mTransform;
+    Buffers mBuffers;
 
-    GLenum mDrawMode;
-    unsigned int mShaderIndex;
+    GLenum mDrawMode = GL_TRIANGLES;
+    bool mDrawArrays = false;
+    EShader mShaderType{EShader::phong};
+
+public:
+    VisualObject()
+    {
+        initializeOpenGLFunctions();
+    }
+    ~VisualObject()
+    {}
+
+    virtual void init(); //Skal bare ha et parameter, matrix uniform
+    virtual void draw(Shader &shader);    
+
+    void setHeight(float h) {mTransform.location.setZ(h);}
+    void setLocation(QVector3D loc){mTransform.location = loc;}
+    void setRotation(QVector3D rot){mTransform.rotation = rot;}
+    void setScale(QVector3D scl)   {mTransform.scale = scl;}
+
+    Transform &getTransform() {return mTransform;}
+    QVector3D getLocation() const { return mTransform.location;}
+    QVector3D getRotation() const { return mTransform.rotation;}
+    QVector3D getScale() const    { return mTransform.scale;}
+
+    EShader getShader() const {return mShaderType;}
+
+    void scale(float factor){mTransform.scale * factor;}
+    void move(QVector3D trans){mTransform.location += trans;}
+
+    Vertex getVertex(unsigned int i) {return mVertices[i];}
+    unsigned int getVertexCount() const {return mVertices.size();}
+
+private:
+    void initializeBuffers_impl(unsigned int *indexData, Vertex *vertexData, unsigned int indexCount, unsigned int vertexCount,
+                                Buffers &buffer, GLenum drawing = GL_STATIC_DRAW);
 };
 
 #endif // VISUALOBJECT_H

@@ -4,14 +4,14 @@
 #include "VisualObjects/visualobject.h"
 
 struct Edge{
-    Vector3D mFrom;
-    Vector3D mTo;
-    Vector3D mBetween;
+    QVector3D mFrom;
+    QVector3D mTo;
+    QVector3D mBetween;
 
     bool operator == (Edge e) {return mBetween == e.mBetween || mBetween == (e.mBetween * -1);}
     bool operator != (Edge e) {return mBetween == e.mBetween || mBetween == (e.mBetween * -1);}
 
-    Edge(Vector3D from, Vector3D to){
+    Edge(QVector3D from, QVector3D to){
         mFrom = from; mTo = to;
         mBetween = to - from;
     }
@@ -21,9 +21,6 @@ class ContourLine : public VisualObject
 {
 public:
     ContourLine(VisualObject *triangleSurface, float height = 1.5, bool indexed = true);
-
-    virtual void init() override;
-    virtual void draw() override;
 
     void createContourLine();
     void newHeight(float height);

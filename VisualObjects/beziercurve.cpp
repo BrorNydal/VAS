@@ -5,63 +5,32 @@ BezierCurve::BezierCurve()
         mToControlPoint(5), mStart(0.f), mEnd(1.f), mLength(mEnd - mStart),
         mIterations(400), mBezierCurveColor(0.f, 1.f, 0.f), mLerpIndex(0), mLerpDelta(0.f)
 {
-}
-
-void BezierCurve::init()
-{
-    mMatrix.setToIdentity();
-
-    initializeOpenGLFunctions();
-
     createBezierCurve();
-
-    glGenVertexArrays(1, &mVAO);
-    glGenBuffers(1, &mEAB);
-    glGenBuffers(1, &mVBO);
-
-    //what object to draw
-    glBindVertexArray(mVAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-
-    //Vertex Buffer Object to hold vertices - VBO
-    glBufferData( GL_ARRAY_BUFFER, mVertices.size()*sizeof( Vertex ), mVertices.data(), GL_STATIC_DRAW );
-
-    glVertexAttribPointer(0, 3, GL_FLOAT,GL_FALSE,6 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ),  (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEAB);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<unsigned int>(mIndices.size()) * sizeof(GLuint), mIndices.data(), GL_STATIC_DRAW);
-}
-
-void BezierCurve::draw()
-{
-    glUniformMatrix4fv( mMatrixUniform, 1, GL_FALSE, mMatrix.data());
-    glBindVertexArray( mVAO );
-
-    if(mDisplayBezierCurve)
-        glDrawElements(GL_LINES, mIndices.size(), GL_UNSIGNED_INT, NULL);
 }
 
 void BezierCurve::initializeBezierPositions()
 {
-    mControlPoints.push_back(Vector3D(0,    0,  4));
-    mControlPoints.push_back(Vector3D(-3.5,    2.5,  4));
-    mControlPoints.push_back(Vector3D(0,    5, 4));
-    mControlPoints.push_back(Vector3D(5,   5, 4));
-    mControlPoints.push_back(Vector3D(5,   0,  4));
-    mControlPoints.push_back(Vector3D(0,    0,  4));
+    mControlPoints.push_back(QVector3D(0, 0, 4));
+    mControlPoints.push_back(QVector3D(-3.5, 2.5, 4));
+    mControlPoints.push_back(QVector3D(0, 5, 4));
+    mControlPoints.push_back(QVector3D(5, 5, 4));
+    mControlPoints.push_back(QVector3D(5, 0, 4));
+    mControlPoints.push_back(QVector3D(0, 0, 4));
 
     mControlPointsSize = static_cast<unsigned long>(mControlPoints.size());
 }
 
-Vector3D BezierCurve::evaluateBezier(unsigned int degree, float t)
+QVector3D BezierCurve::evaluateBezier(unsigned int degree, float t)
 {
-    std::vector<Vector3D> c;
-    for(unsigned int i = 0; i < mControlPointsSize; i++)
+    std::vector<QVector3D> c;
+
+    if(mControlPoints.size() == 0)
+    {
+        //qDebug() << "ControlPoint size null";
+        return QVector3D();
+    }
+
+    for(unsigned int i = 0; i < mControlPoints.size(); i++)
         c.push_back(mControlPoints[i]);
 
     for(unsigned int k = 1; k <= degree; k++)
@@ -73,45 +42,45 @@ Vector3D BezierCurve::evaluateBezier(unsigned int degree, float t)
     return c[0];
 }
 
-Vector3D BezierCurve::getLocationOnBezierCurve(unsigned int i)
+QVector3D BezierCurve::getLocationOnBezierCurve(unsigned int i)
 {
     if(i + mControlPointsSize < mVertices.size())
     {
-        QVector3D v = mMatrix * QVector3D(mVertices[i + mControlPointsSize].x,
+        QVector3D v = mTransform.location * QVector3D(mVertices[i + mControlPointsSize].x,
                 mVertices[i + mControlPointsSize].y,
                 mVertices[i + mControlPointsSize].z);
 
-        return Vector3D(v.x(), v.y(), v.z());
+        return QVector3D(v.x(), v.y(), v.z());
     }
     else
-        return Vector3D(0.f,0.f,0.f);
+        return QVector3D(0.f,0.f,0.f);
 }
 
-Vector3D BezierCurve::getControlPointPosition(unsigned int index)
+QVector3D BezierCurve::getControlPointPosition(unsigned int index)
 {
     if(index < mControlPointsSize)
     {
-        return Vector3D(mVertices[index].x, mVertices[index].y, mVertices[index].z);
+        return QVector3D(mVertices[index].x, mVertices[index].y, mVertices[index].z);
     }
 
-    return Vector3D(mVertices[0].x, mVertices[0].y, mVertices[0].z);
+    return QVector3D(mVertices[0].x, mVertices[0].y, mVertices[0].z);
 }
 
 bool BezierCurve::lerpBetweenPositions(VisualObject *object, float speed)
 {
     if(mControlPointsSize + mLerpIndex + 1 < mVertices.size())
     {
-        Vector3D result;
+        QVector3D result;
 
         unsigned int indexTo    = mControlPointsSize + mLerpIndex + 1;
         unsigned int indexFrom  = mControlPointsSize + mLerpIndex;
 
-        Vector3D to     = Vector3D(mVertices[indexTo].x, mVertices[indexTo].y, mVertices[indexTo].z);
-        Vector3D from   = Vector3D(mVertices[indexFrom].x, mVertices[indexFrom].y, mVertices[indexFrom].z);
+        QVector3D to     = QVector3D(mVertices[indexTo].x, mVertices[indexTo].y, mVertices[indexTo].z);
+        QVector3D from   = QVector3D(mVertices[indexFrom].x, mVertices[indexFrom].y, mVertices[indexFrom].z);
 
         result = to * mLerpDelta + from * (1 - mLerpDelta);
 
-        object->setPosition(result);
+        object->setLocation(result);
         mLerpDelta += speed / (to - from).length(); //Dividing by length so the objects moves at constant speed
 
         if(mLerpDelta >= 1)
@@ -135,7 +104,7 @@ bool BezierCurve::lerpBetweenPositions(VisualObject *object, float speed)
     return false;
 }
 
-void BezierCurve::setControlPoints(std::vector<Vector3D> newControlPoints)
+void BezierCurve::setControlPoints(std::vector<QVector3D> newControlPoints)
 {
     mControlPoints.clear();
 
@@ -157,7 +126,7 @@ void BezierCurve::createBezierCurve()
     unsigned int i = mControlPointsSize;
 
     while(t <= mEnd) {
-        Vector3D v = evaluateBezier(mToControlPoint, t);
+        QVector3D v = evaluateBezier(mToControlPoint, t);
 
         mVertices.push_back(Vertex(v.x(), v.y(), v.z()));
 

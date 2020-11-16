@@ -8,8 +8,9 @@
 #include <QDebug>
 
 #include <iostream>
-#include "Scenes/Scene1.h"
-#include "Scenes/scene2.h"
+#include "scene1.h"
+#include "scene2.h"
+#include "scene3.h"
 #include "shader.h"
 #include "mainwindow.h"
 
@@ -99,33 +100,57 @@ void RenderWindow::init()
 
     mScenes.push_back(new Scene1());
     mScenes.push_back(new Scene2());
-    mScenes[0]->createAndInitialize();
-
-    glBindVertexArray( 0 );
+    mScenes.push_back(new Scene3());
 }
 
 void RenderWindow::nextScene()
 {
-    mSceneIndex+=1;
+    mSceneIndex++;
 
     if(mSceneIndex >= mScenes.size())
         mSceneIndex=0;
 
-    if(mScenes[mSceneIndex]->mInitialized == false)
-        mScenes[mSceneIndex]->createAndInitialize();
+    if(mScenes[mSceneIndex]->hasInitialized() == false)
+        mScenes[mSceneIndex]->initializeScene();
 
 }
 
 // Called each frame - doing the rendering
 void RenderWindow::render()
 {
+    mLastFrame = mDeltaTimer;
+    mDeltaTimer = clock();
+    //qDebug() << "dT" << mDeltaTimer;
+    mDeltaTime = (mDeltaTimer - mLastFrame) / CLOCKS_PER_SEC;
+
     mTimeStart.restart(); //restart FPS clock
     mContext->makeCurrent(this); //must be called every frame (every time mContext->swapBuffers is called)
+
 
     //to clear the screen for each redraw
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    mScenes[mSceneIndex]->draw();
+    //qDebug() << "deltatime :" << mDeltaTime;
+
+    float deltaX = 0.f;
+    float deltaY = 0.f;
+    float deltaZ = 0.f;
+
+    if(mKeyInput[Qt::Key_D])
+        deltaX = 1.f;
+    else if(mKeyInput[Qt::Key_A])
+        deltaX = -1.f;
+    if(mKeyInput[Qt::Key_W])
+        deltaY = 1.f;
+    else if(mKeyInput[Qt::Key_S])
+        deltaY = -1.f;
+    if(mKeyInput[Qt::Key_Shift])
+        deltaZ = 1.f;
+    else if(mKeyInput[Qt::Key_Control])
+        deltaZ = -1.f;
+
+    mScenes[mSceneIndex]->getCamera().move(QVector3D(deltaX, deltaY, deltaZ));
+    mScenes[mSceneIndex]->draw(1/120.f);
 
     calculateFramerate();
 
@@ -179,6 +204,7 @@ void RenderWindow::calculateFramerate()
             mMainWindow->statusBar()->showMessage(" Time pr FrameDraw: " +
                                                   QString::number(nsecElapsed/1000000.f, 'g', 4) + " ms  |  " +
                                                   "FPS (approximated): " + QString::number(1E9 / nsecElapsed, 'g', 7));
+            mTPF = nsecElapsed/1000000000.f;
             frameCount = 0;     //reset to show a new message in 60 frames
         }
     }
@@ -224,8 +250,36 @@ void RenderWindow::startOpenGLDebugger()
     }
 }
 
+void RenderWindow::mousePressEvent(QMouseEvent *event){
+    mMouseInput[event->button()] = true;
+}
+
+void RenderWindow::mouseReleaseEvent(QMouseEvent *event)
+{
+    mMouseInput[event->button()] = false;
+}
+
+void RenderWindow::mouseMoveEvent(QMouseEvent *event){
+
+    Camera &cam = mScenes[mSceneIndex]->getCamera();
+
+    float deltaX = event->x() - cam.getCursorLocation().x();
+    float deltaY = event->y() - cam.getCursorLocation().y();
+    cam.setCursorDelta(QVector2D(deltaX, deltaY));
+
+    cam.setCursorLocation(QVector2D(event->x(), event->y()));
+
+    if(mMouseInput[Qt::MouseButton::RightButton] == true)
+    {
+        cam.yaw(deltaX);
+        cam.pitch(deltaY);
+    }
+}
+
 void RenderWindow::keyPressEvent(QKeyEvent *event)
 {
+    mKeyInput[event->key()] = true;
+
     if (event->key() == Qt::Key_Escape) //Shuts down whole program
     {
         mMainWindow->close();
@@ -241,28 +295,32 @@ void RenderWindow::keyPressEvent(QKeyEvent *event)
 //        else
 //            mScenes[mSceneIndex]->mTurnTable = false;
     }
-    if(event->key() == Qt::Key_2)
-    {
-        mScenes[mSceneIndex]->mViewMatrix.rotate(1.f, QVector3D(0.f, 0.f, 1.f));
-    }
-    if(event->key() == Qt::Key_1)
-    {
-        mScenes[mSceneIndex]->mViewMatrix.rotate(-1.f, QVector3D(0.f, 0.f, 1.f));
-    }
-    if(event->key() == Qt::Key_3)
-    {
-        mScenes[mSceneIndex]->mViewMatrix.rotate(1.f, QVector3D(0.f, 1.f, 0.f));
-    }
-    if(event->key() == Qt::Key_4)
-    {
-        mScenes[mSceneIndex]->mViewMatrix.rotate(-1.f, QVector3D(0.f, 1.f, 0.f));
-    }
-    if(event->key() == Qt::Key_Z)
-    {
-        mScenes[mSceneIndex]->mViewMatrix.rotate(1.f, QVector3D(1.f, 0.f, 0.f));
-    }
-    if(event->key() == Qt::Key_X)
-    {
-        mScenes[mSceneIndex]->mViewMatrix.rotate(-1.f, QVector3D(1.f, 0.f, 0.f));
-    }
+//    if(event->key() == Qt::Key_2)
+//    {
+//        mScenes[mSceneIndex]->mViewMatrix.rotate(1.f, QVector3D(0.f, 0.f, 1.f));
+//    }
+//    if(event->key() == Qt::Key_1)
+//    {
+//        mScenes[mSceneIndex]->mViewMatrix.rotate(-1.f, QVector3D(0.f, 0.f, 1.f));
+//    }
+//    if(event->key() == Qt::Key_3)
+//    {
+//        mScenes[mSceneIndex]->mViewMatrix.rotate(1.f, QVector3D(0.f, 1.f, 0.f));
+//    }
+//    if(event->key() == Qt::Key_4)
+//    {
+//        mScenes[mSceneIndex]->mViewMatrix.rotate(-1.f, QVector3D(0.f, 1.f, 0.f));
+//    }
+//    if(event->key() == Qt::Key_Z)
+//    {
+//        mScenes[mSceneIndex]->mViewMatrix.rotate(1.f, QVector3D(1.f, 0.f, 0.f));
+//    }
+//    if(event->key() == Qt::Key_X)
+//    {
+//        mScenes[mSceneIndex]->mViewMatrix.rotate(-1.f, QVector3D(1.f, 0.f, 0.f));
+//    }
+}
+
+void RenderWindow::keyReleaseEvent(QKeyEvent *event){
+    mKeyInput[event->key()] = false;
 }

@@ -1,48 +1,42 @@
 #version 410 core
 
-vec4 color;
-
-float heightCurve = 1.5;
-float heightCurveThickness = 0.015;
-
 in vec3 fragPosition;
 in vec3 normal;
-
-uniform vec3 viewPosition;
 
 out vec4 fragColor;
 
 //Light
-uniform float lightIntensity;
-uniform vec3 lightColor;
-uniform vec3 lightPosition;
+struct DirLight {
+    vec3 direction;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+uniform DirLight light;
+uniform vec3 viewLocation;
+uniform vec3 color;
 
 void main()
 {
-//    if(fragPosition.z > heightCurve && fragPosition.z < heightCurve + heightCurveThickness)
-//        color = vec4(0.0, 0.0, 0.0, 1.0);
-//    else
-//        color = vec4(0.0, 0.7, 0.7, 1.0);
-
-    color = vec4(0.0, 0.7, 0.7, 1.0);
-
     // ambient
-    float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * (lightColor);
+    vec3 ambient = light.ambient;
+    //light.ambient * material.ambient
 
+    // * (diff * material.diffuse)
     // diffuse
     vec3 norm = normalize(normal);
-    vec3 lightDirection = normalize(lightPosition - fragPosition);
+    vec3 lightDirection = normalize(-light.direction);
     float diff = max(dot(normal, lightDirection), 0.0);
-    vec3 diffuse = diff * lightColor;
+    vec3 diffuse = light.diffuse * diff;
 
     // specular
-    float specularStrength = 0.5;
-    vec3 viewDir = normalize(viewPosition - fragPosition);
+    vec3 viewDir = normalize(viewLocation - fragPosition);
     vec3 reflectDir = reflect(-lightDirection, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = specularStrength * spec * lightColor;
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.f); // last = shininess
+    vec3 specular = light.specular * spec;
 
-    vec3 result = (ambient + diffuse + specular) * lightIntensity;
-    fragColor = vec4(result, 1.0) * color;
+    vec4 result = vec4((ambient + diffuse + specular), 1.0) * vec4(color, 1.0);
+
+    fragColor = result;
 }

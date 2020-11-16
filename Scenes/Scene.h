@@ -3,47 +3,39 @@
 
 #include <QOpenGLFunctions_4_1_Core>
 #include <vector>
-
-#include "VisualObjects/visualobject.h"
+#include "structs.h"
+#include "visualobject.h"
+#include "light.h"
+#include "xyz.h"
+#include "grid.h"
+#include "octahedronball.h"
+#include "indexedtrianglesurface.h"
 #include "shader.h"
+#include "camera.h"
+#include "physicsengine.h"
+
+
 
 class Scene : public QOpenGLFunctions_4_1_Core
 {
 protected:
     //Objects needed for current task
-    std::vector<VisualObject*> mObjects;    
+    std::vector<VisualObject*> mObjects;
 
-    //FOR ALL VECTORS
-    //Index 0 = Plain Shader
-    //Index 1 = Phong Shader
+    //shaders needed, plain, phong
+    std::map<EShader, Shader*> mShaders;
 
-    //SHADERS
-    std::vector<Shader*> mShaders;
-    Shader *mPlainShader;
-    Shader *mPhongShader;
+    //Has scene been initialized
+    bool mInitialized = false;
 
-    //UNIFORMS
+    PhysicsEngine mPhysicsEngine;
 
-    //Transformation Matrix Uniforms
-    std::vector<GLint> mTransformationUniforms;
-    GLint mPlainTransformMatrixUniform;
-    GLint mPhongTransformMatrixUniform;
-
-    //Camera Uniforms
-    std::vector<GLint> mViewUniforms;
-    std::vector<GLint> mProjectionUniforms;
-
-    GLint mPlainViewUniform;
-    GLint mPlainProjectionUniform;
-
-    GLint mPhongViewUniform;
-    GLint mPhongProjectionUniform;
-    GLint mViewPosition;
-
-    //Light Uniforms
-    GLint mLightPositionUniform;
-    GLint mLightIntensityUniform;
-    GLint mLightColorUniform;
+    IndexedTriangleSurface *mTriangleSurface = nullptr;
+    Camera mCamera;
+    Light mLight;
+    XYZ mXYZ;
+    Grid mGrid;
+    OctahedronBall mBall;
 
 public:
     Scene();
@@ -51,29 +43,19 @@ public:
 
     void initializeScene();
     //Draws all elements of mObjects
-    virtual void draw();
+    virtual void draw(float deltaTime);
 
     //Creates and pushes objects to mObjects-vector
     virtual void listObjects() = 0;
-    virtual void setUniforms() = 0;
-    //Calls createObjects() and init() in order
-    void createAndInitialize();
 
-    //Camera
-    QMatrix4x4 mViewMatrix;
-    QMatrix4x4 mProjectionMatrix;
+    bool hasInitialized() const {return mInitialized;}
+    Shader *getShader(EShader type);
+    Camera &getCamera();
 
-    //Has scene been initialized
-    bool mInitialized = false;
-
-    //If we want to spin our scene
-    bool mTurnTable = false;
 
 protected:
     //Initializes all elements of mObjects
-    void init();
-
-    virtual void setTransformations() = 0;
+    void initializeObjects();
 };
 
 #endif // OPPGAVE_H

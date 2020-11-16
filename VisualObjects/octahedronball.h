@@ -1,25 +1,30 @@
 #ifndef OCTAHEDRONBALL_H
 #define OCTAHEDRONBALL_H
 
-#include "VisualObjects/visualobject.h"
+#include "visualobject.h"
 
+#include "structs.h"
 
 class OctahedronBall : public VisualObject
 {
+    PhysicsProperties mPhysicsProperties;
+
     float mRadius;
     int mRekursions;
     int mIndex;               // brukes i rekursjon, til å bygge m_vertices
 
 public:
-    OctahedronBall(float radius = 1.f, int rekursions = 0);
+    OctahedronBall(float radius = 1.f, int rekursions = 3);
 
-    virtual void init() override;
-    virtual void draw() override;
+    virtual void draw(Shader &shader) override;
+    float getRadius() const;
+    PhysicsProperties &getPhysicsProperties();
 
 private:
-    void createTriangel(Vector3D &v1, Vector3D &v2, Vector3D &v3);
-    void subDivide(Vector3D &a, Vector3D& b, Vector3D& c, int n);
+    void createTriangel(QVector3D &v1, QVector3D &v2, QVector3D &v3);
+    void subDivide(QVector3D &a, QVector3D& b, QVector3D& c, int n);
     void oktaederUnitBall();
+
 
 };
 

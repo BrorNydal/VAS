@@ -2,30 +2,20 @@
 #define LIGHT_H
 
 #include "VisualObjects/visualobject.h"
+#include <QVector3D>
 
-struct LightUniforms{
-    int mIntensityUniform;
-    int mLightColorUniform;
-    int mLightPositionUniform;
-};
 
 class Light : public VisualObject
 {
+    LightProperties mLightProperties;
+
 public:
     Light();
 
-    float mIntensity;
-    Vector3D mLightColor;
+    virtual void draw(Shader &shader) override;
 
-    virtual void init() override;
-    virtual void draw() override;
+    const LightProperties &getLightProperties() const;
 
-    void setIntensityUniform(GLint uniform) {mLightUniforms.mIntensityUniform = uniform;}
-    void setLightColorUniform(GLint uniform) {mLightUniforms.mLightColorUniform = uniform;}
-    void setLightPositionUniform(GLint uniform) {mLightUniforms.mLightPositionUniform = uniform;}
-
-protected:
-    LightUniforms mLightUniforms;
 };
 
 #endif // LIGHT_H

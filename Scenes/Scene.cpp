@@ -1,92 +1,76 @@
-#include "Scenes/Scene.h"
+#include "scene.h"
 
 Scene::Scene()
 {
-    initializeScene();
+    initializeOpenGLFunctions();
+
+    mShaders[EShader::plain] = new Shader("../VAS/plainvertex.vert", "../VAS/plainfragment.frag", EShader::plain);
+    mShaders[EShader::phong] = new Shader("../VAS/PhongVertex.vert", "../VAS/PhongFragment.frag", EShader::phong);
 }
 
 Scene::~Scene()
 {
-    std::vector<VisualObject*> empty;
-    mObjects.swap(empty);
+    for(auto *it : mObjects)
+        delete it;
 }
 
 void Scene::initializeScene()
 {
-    initializeOpenGLFunctions();
+    listObjects();
+    initializeObjects();
 
-    mPlainShader = new Shader("../GSOpenGL2020/plainvertex.vert", "../GSOpenGL2020/plainfragment.frag");
-    mPhongShader = new Shader("../GSOpenGL2020/PhongVertex.vert", "../GSOpenGL2020/PhongFragment.frag");
-    mShaders.push_back(mPlainShader);
-    mShaders.push_back(mPhongShader);
-
-    //TRANSFORMATION MATRIX
-
-    mPlainTransformMatrixUniform = glGetUniformLocation( mPlainShader->getProgram(), "matrix"   );
-    mPhongTransformMatrixUniform = glGetUniformLocation( mPhongShader->getProgram(), "matrix"   );
-
-    //CAMERA
-
-    mPlainViewUniform       = glGetUniformLocation( mPlainShader->getProgram(), "vmatrix"       );
-    mPlainProjectionUniform = glGetUniformLocation( mPlainShader->getProgram(), "pmatrix"       );
-
-    mPhongViewUniform       = glGetUniformLocation( mPhongShader->getProgram(), "vmatrix"       );
-    mPhongProjectionUniform = glGetUniformLocation( mPhongShader->getProgram(), "pmatrix"       );
-    mViewPosition           = glGetUniformLocation( mPhongShader->getProgram(), "viewPosition"  );
-
-    mProjectionMatrix.frustum(-1, 1,-1, 1, 1, -1);
-
-    //LIGHT
-
-    mLightPositionUniform   = glGetUniformLocation( mPhongShader->getProgram(), "lightPosition" );
-    mLightIntensityUniform  = glGetUniformLocation( mPhongShader->getProgram(), "lightIntensity");
-    mLightColorUniform      = glGetUniformLocation( mPhongShader->getProgram(), "lightColor"    );
+    mInitialized = true;
 }
 
-void Scene::init()
+void Scene::initializeObjects()
 {
-    setUniforms();
+    mXYZ.init();
+    mGrid.init();
+    mBall.init();
+    mLight.init();
+
+    if(mTriangleSurface != nullptr)
+        mObjects.push_back(mTriangleSurface);
 
     for(unsigned int i = 0; i < mObjects.size(); i++)
         mObjects[i]->init();
 }
 
-void Scene::draw()
+void Scene::draw(float deltaTime)
 {
+    EShader current = EShader::plain;
+    mShaders[current]->use();
+
+    mCamera.lookAt();
+    mCamera.render(*mShaders[current]);
+
+    mXYZ.draw(*mShaders[current]);
+    mGrid.draw(*mShaders[current]);
+
+    current = EShader::phong;
+    mShaders[current]->use();
+    mCamera.render(*mShaders[current]);
+
+    mLight.draw(*mShaders[current]);
+    mBall.draw(*mShaders[current]);
+
     for(auto it = mObjects.begin(); it != mObjects.end(); it++)
     {
-        unsigned int index = (*it)->getShaderIndex();
-        glUseProgram(mShaders[index]->getProgram());
+        glUseProgram(mShaders[(*it)->getShader()]->getID());
+        current = (*it)->getShader();
 
-        glUniformMatrix4fv(mPlainViewUniform, 1, GL_FALSE, mViewMatrix.data());
-        glUniformMatrix4fv(mPlainProjectionUniform, 1, GL_FALSE, mProjectionMatrix.data());
+        mCamera.render(*mShaders[current]);
 
-        glUniformMatrix4fv(mPhongViewUniform, 1, GL_FALSE, mViewMatrix.data());
-        glUniformMatrix4fv(mPhongProjectionUniform, 1, GL_FALSE, mProjectionMatrix.data());
-
-        (*it)->draw();
-
-        if(mShaders[index] == mPhongShader)
-        {
-            glUniform3f(mViewPosition, 0.f, 0.f, 8.f);
-        }
-    }
-
-    if(mTurnTable){
-        for(auto it = mObjects.begin(); it != mObjects.end(); it++)
-        {
-            (*it)->rotateZ(0.2f);
-        }
+        (*it)->draw(*mShaders[(*it)->getShader()]);
     }
 }
 
-void Scene::createAndInitialize()
+Shader *Scene::getShader(EShader type)
 {
-    listObjects();
+    return mShaders[type];
+}
 
-    init();
-
-    setTransformations();
-
-    mInitialized = true;
+Camera &Scene::getCamera()
+{
+    return mCamera;
 }

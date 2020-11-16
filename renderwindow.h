@@ -42,6 +42,9 @@ private:
 
     QTimer *mRenderTimer;           //timer that drives the gameloop
     QElapsedTimer mTimeStart;       //time variable that reads the calculated FPS
+    clock_t mDeltaTimer;
+    float mDeltaTime;
+    float mLastFrame = 0.f;
 
     MainWindow *mMainWindow;        //points back to MainWindow to be able to put info in StatusBar
 
@@ -53,14 +56,19 @@ private:
 
     void startOpenGLDebugger();
 
+    std::map<Qt::MouseButton, bool> mMouseInput;
+    std::map<int, bool> mKeyInput;
+
+    double mTPF;
 protected:
     //The QWindow that we inherit from has these functions to capture
     //mouse and keyboard. Uncomment to use (you also have to make the definitions of these functions
     //
-    //    void mousePressEvent(QMouseEvent *event) override{}
-    //    void mouseMoveEvent(QMouseEvent *event) override{}
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
-    //    void keyReleaseEvent(QKeyEvent *event) override{}
+    void keyReleaseEvent(QKeyEvent *event) override;
     //    void wheelEvent(QWheelEvent *event) override{}
 };
 
