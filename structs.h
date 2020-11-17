@@ -9,6 +9,17 @@ enum class EShader {
     phong
 };
 
+struct Triangle {
+    Triangle(unsigned int id) {ID = id;}
+    unsigned int ID;
+
+    unsigned int mNeighbours[3];
+    unsigned int mIndices[3];
+
+    QVector3D mSurfaceNormal;
+    float mSurfaceArea;
+};
+
 //simple direction light
 struct LightProperties {
     LightProperties(float a = 0.1f, float d = 0.1f, float s = 0.3f){

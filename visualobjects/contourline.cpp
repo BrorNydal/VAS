@@ -18,37 +18,37 @@ void ContourLine::createContourLine()
 
         for(unsigned int triangleIndex = 0; triangleIndex < surface->getTriangles().size(); triangleIndex++)
         {
-            Triangle triangle = surface->getTriangles()[triangleIndex];
+//            Triangle triangle = surface->getTriangles()[triangleIndex];
 
-            Vertex v0 = surface->getVertex(triangle.mIndecies[0]);
-            Vertex v1 = surface->getVertex(triangle.mIndecies[1]);
-            Vertex v2 = surface->getVertex(triangle.mIndecies[2]);
+//            Vertex v0 = surface->getVertex(triangle.mIndecies[0]);
+//            Vertex v1 = surface->getVertex(triangle.mIndecies[1]);
+//            Vertex v2 = surface->getVertex(triangle.mIndecies[2]);
 
-            Edge e0 = Edge(QVector3D(v0.x, v0.y, v0.z), QVector3D(v1.x, v1.y, v1.z));
-            Edge e1 = Edge(QVector3D(v1.x, v1.y, v1.z), QVector3D(v2.x, v2.y, v2.z));
-            Edge e2 = Edge(QVector3D(v2.x, v2.y, v2.z), QVector3D(v0.x, v0.y, v0.z));
+//            Edge e0 = Edge(QVector3D(v0.x, v0.y, v0.z), QVector3D(v1.x, v1.y, v1.z));
+//            Edge e1 = Edge(QVector3D(v1.x, v1.y, v1.z), QVector3D(v2.x, v2.y, v2.z));
+//            Edge e2 = Edge(QVector3D(v2.x, v2.y, v2.z), QVector3D(v0.x, v0.y, v0.z));
 
-            if(std::find(mEdges.begin(), mEdges.end(), e0) == mEdges.end())
-            {
-                if((e0.mFrom.z() <= mHeight && e0.mTo.z() >= mHeight) || (e0.mTo.z() <= mHeight && e0.mFrom.z() >= mHeight))
-                {
-                    mEdges.push_back(e0);
-                }
-            }
-            if(std::find(mEdges.begin(), mEdges.end(), e1) == mEdges.end())
-            {
-                if((e1.mFrom.z() <= mHeight && e1.mTo.z() >= mHeight) || (e1.mTo.z() <= mHeight && e1.mFrom.z() >= mHeight))
-                {
-                    mEdges.push_back(e1);
-                }
-            }
-            if(std::find(mEdges.begin(), mEdges.end(), e2) == mEdges.end())
-            {
-                if((e2.mFrom.z() <= mHeight && e2.mTo.z() >= mHeight) || (e2.mTo.z() <= mHeight && e2.mFrom.z() >= mHeight))
-                {
-                    mEdges.push_back(e2);
-                }
-            }
+//            if(std::find(mEdges.begin(), mEdges.end(), e0) == mEdges.end())
+//            {
+//                if((e0.mFrom.z() <= mHeight && e0.mTo.z() >= mHeight) || (e0.mTo.z() <= mHeight && e0.mFrom.z() >= mHeight))
+//                {
+//                    mEdges.push_back(e0);
+//                }
+//            }
+//            if(std::find(mEdges.begin(), mEdges.end(), e1) == mEdges.end())
+//            {
+//                if((e1.mFrom.z() <= mHeight && e1.mTo.z() >= mHeight) || (e1.mTo.z() <= mHeight && e1.mFrom.z() >= mHeight))
+//                {
+//                    mEdges.push_back(e1);
+//                }
+//            }
+//            if(std::find(mEdges.begin(), mEdges.end(), e2) == mEdges.end())
+//            {
+//                if((e2.mFrom.z() <= mHeight && e2.mTo.z() >= mHeight) || (e2.mTo.z() <= mHeight && e2.mFrom.z() >= mHeight))
+//                {
+//                    mEdges.push_back(e2);
+//                }
+//            }
         }
     }
     else

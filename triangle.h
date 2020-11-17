@@ -4,17 +4,17 @@
 #include <QVector3D>
 #include "vertex.h"
 
-struct Triangle{
-    Triangle(unsigned int id) {ID = id;}
-    unsigned int ID;
+//struct Triangle{
+//    Triangle(unsigned int id) {ID = id;}
+//    unsigned int ID;
 
-    QVector3D mSurfaceNormal;
-    QVector3D mCentroid;
+//    QVector3D mSurfaceNormal;
+//    QVector3D mCentroid;
 
-    unsigned int mIndecies[3] = {0,0,0};
-    int mAdjacentTriangles[3] = {-1,-1,-1};
-    QVector3D mPosition[3];
-};
+//    unsigned int mIndecies[3] = {0,0,0};
+//    int mAdjacentTriangles[3] = {-1,-1,-1};
+//    QVector3D mPosition[3];
+//};
 
 class OldTriangle
 {

@@ -16,7 +16,7 @@ private:
     const float mFov{77.f};
     const float mAspectRatio{4.f/3.f};
     const float mNearPlane{0.01f};
-    const float mFarPlane{1000.f};
+    const float mFarPlane{3000.f};
     const float mPitchLimit = 87.f;
 
     QVector2D mCursorDelta{0,0};
@@ -24,7 +24,7 @@ private:
 
     QVector2D mScreenSize;
 
-    float mMovementSensitivity{0.3f};
+    float mMovementSensitivity{1.1f};
     float mRotationSensitivity{0.2f};
 
     float mCameraZoomScale{0.06f};

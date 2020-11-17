@@ -1,7 +1,7 @@
 #include "grid.h"
 
 Grid::Grid()
-    :   mSquareSize(1.f), mRow(20), mCol(20)
+    :   mSquareSize(10.f), mRow(20), mCol(20)
 {
     for(unsigned int y = 0; y < mRow; y++)
     {
