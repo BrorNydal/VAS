@@ -149,6 +149,18 @@ void RenderWindow::render()
     else if(mKeyInput[Qt::Key_Control])
         deltaZ = -1.f;
 
+    if(!mScenes[mSceneIndex]->isPaused())
+    {
+        if(mKeyInput[Qt::Key_L])
+            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(0.01f, 0.0f, 0.f);
+        else if(mKeyInput[Qt::Key_J])
+            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(-0.01f, 0.0f, 0.f);
+        if(mKeyInput[Qt::Key_I])
+            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(0.0f, 0.01f, 0.f);
+        else if(mKeyInput[Qt::Key_K])
+            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(0.0f, -0.01f, 0.f);
+    }
+
     mScenes[mSceneIndex]->getCamera().move(QVector3D(deltaX, deltaY, deltaZ));
     mScenes[mSceneIndex]->draw(1/120.f);
 
@@ -288,6 +300,19 @@ void RenderWindow::keyPressEvent(QKeyEvent *event)
     {
         nextScene();
     }
+    if(event->key() == Qt::Key_E)
+    {
+        mScenes[mSceneIndex]->toggleCameraLookAtBall();
+    }
+    if(event->key() == Qt::Key_P)
+    {
+        mScenes[mSceneIndex]->togglePause();
+    }
+    if(event->key() == Qt::Key_Q)
+    {
+        mScenes[mSceneIndex]->reset();
+    }
+
     if(event->key() == Qt::Key_M)
     {
 //        if(mScenes[mSceneIndex]->mTurnTable == false)
@@ -323,4 +348,10 @@ void RenderWindow::keyPressEvent(QKeyEvent *event)
 
 void RenderWindow::keyReleaseEvent(QKeyEvent *event){
     mKeyInput[event->key()] = false;
+}
+
+void RenderWindow::wheelEvent(QWheelEvent *event){
+    Camera &cam = mScenes[mSceneIndex]->getCamera();
+
+    cam.zoom(-event->delta());
 }

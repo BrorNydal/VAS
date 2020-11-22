@@ -5,7 +5,9 @@
 
 void VisualObject::init()
 {
+    qDebug() << "SIZE V1 :" << mVertices.size();
     initializeBuffers_impl(mIndices.data(), mVertices.data(), mIndices.size(), mVertices.size(), mBuffers, mDrawMode);
+    qDebug() << "SIZE V2 :" << mVertices.size();
 }
 
 void VisualObject::draw(Shader &shader)

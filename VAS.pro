@@ -19,13 +19,14 @@ SOURCES += main.cpp \
     scenes/scene3.cpp \
     visualobjects/beziercurve.cpp \
     visualobjects/bspline.cpp \
-    visualobjects/contourline.cpp \
+    visualobjects/enemy.cpp \
     visualobjects/grid.cpp \
     visualobjects/indexedtrianglesurface.cpp \
+    visualobjects/item.cpp \
     visualobjects/light.cpp \
-    visualobjects/linedraw.cpp \
+    visualobjects/obj.cpp \
     visualobjects/octahedronball.cpp \
-    visualobjects/trianglesurface.cpp \
+    visualobjects/rollingball.cpp \
     visualobjects/visualobject.cpp \
     visualobjects/xyz.cpp \
     renderwindow.cpp \
@@ -46,13 +47,14 @@ HEADERS += \
     structs.h \
     visualobjects/beziercurve.h \
     visualobjects/bspline.h \
-    visualobjects/contourline.h \
+    visualobjects/enemy.h \
     visualobjects/grid.h \
     visualobjects/indexedtrianglesurface.h \
+    visualobjects/item.h \
     visualobjects/light.h \
-    visualobjects/linedraw.h \
+    visualobjects/obj.h \
     visualobjects/octahedronball.h \
-    visualobjects/trianglesurface.h \
+    visualobjects/rollingball.h \
     visualobjects/visualobject.h \
     visualobjects/xyz.h \
     globalconstants.h \

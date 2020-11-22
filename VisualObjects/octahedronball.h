@@ -7,8 +7,6 @@
 
 class OctahedronBall : public VisualObject
 {
-    PhysicsProperties mPhysicsProperties;
-
     float mRadius;
     int mRekursions;
     int mIndex;               // brukes i rekursjon, til å bygge m_vertices
@@ -18,7 +16,7 @@ public:
 
     virtual void draw(Shader &shader) override;
     float getRadius() const;
-    PhysicsProperties &getPhysicsProperties();
+
 
 private:
     void createTriangel(QVector3D &v1, QVector3D &v2, QVector3D &v3);

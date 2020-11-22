@@ -30,7 +30,7 @@ private:
     float mCameraZoomScale{0.06f};
     float mMaxCameraOffset{2000.f};
     float mMinCameraOffset{0.5f};
-    float mOffset{1.5f};
+    float mOffset{10.f};
 
     QVector3D mForward     {0.f,1.f,0.f};
     QVector3D mRight;
@@ -60,6 +60,7 @@ public:
     void move(QVector3D dir);
     void yaw(float delta);
     void pitch(float delta);
+    void zoom(float delta);
 
 };
 

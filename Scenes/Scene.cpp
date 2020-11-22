@@ -22,6 +22,13 @@ void Scene::initializeScene()
     mInitialized = true;
 }
 
+void Scene::reset()
+{
+    mBall.setLocation({4.f, 1.f, 0.f});
+    mBall.getPhysicsProperties().velocity = {0.f,0.f,0.f};
+
+}
+
 void Scene::initializeObjects()
 {
     mXYZ.init();
@@ -63,6 +70,23 @@ void Scene::draw(float deltaTime)
 
         (*it)->draw(*mShaders[(*it)->getShader()]);
     }
+
+    if(mLockCameraToBall)
+        mCamera.setLocation(mBall.getLocation());
+
+}
+
+void Scene::togglePause()
+{
+    if(mPause)
+        mPause = false;
+    else
+        mPause = true;
+}
+
+bool Scene::isPaused() const
+{
+    return mPause;
 }
 
 Shader *Scene::getShader(EShader type)
@@ -73,4 +97,17 @@ Shader *Scene::getShader(EShader type)
 Camera &Scene::getCamera()
 {
     return mCamera;
+}
+
+void Scene::toggleCameraLookAtBall()
+{
+    if(mLockCameraToBall == true)
+        mLockCameraToBall = false;
+    else
+        mLockCameraToBall = true;
+}
+
+RollingBall &Scene::getBall()
+{
+    return mBall;
 }

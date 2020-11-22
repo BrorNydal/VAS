@@ -83,7 +83,4 @@ void OctahedronBall::oktaederUnitBall()
     subDivide(v5, v1, v4, mRekursions);
 }
 
-PhysicsProperties &OctahedronBall::getPhysicsProperties()
-{
-    return mPhysicsProperties;
-}
+

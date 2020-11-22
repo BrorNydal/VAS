@@ -14,7 +14,7 @@ void main() {
     if(color.x > 0.0 || color.y > 0.0 || color.z > 0.0)
         col = vec4(color, 1.0);
     else
-        col = vec4(colAttr, 1.0);
+        col = vec4(abs(colAttr.x), abs(colAttr.y), abs(colAttr.z), 1.0);
 
     gl_Position = pmatrix * vmatrix * matrix * vec4(posAttr, 1.0);
 }

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <QVector3D>
+#include <QVector2D>
 
 class Vertex
 {
@@ -23,6 +24,11 @@ public:
 
     void setXYZ(float X, float Y, float Z){x = X; y = Y; z = Z;}
     void setRGB(float R, float G, float B){r = R; g = G; b = B;}
+    void setUV(float U, float V) {u = U; v = V;}
+
+    void setXYZ(QVector3D v){setXYZ(v[0], v[1], v[2]);}
+    void setRGB(QVector3D v){setRGB(v[0], v[1], v[2]);}
+    void setUV(QVector2D v) {setUV(v[0], v[1]);}
 
     operator QVector3D ();
 

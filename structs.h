@@ -10,14 +10,21 @@ enum class EShader {
 };
 
 struct Triangle {
-    Triangle(unsigned int id) {ID = id;}
-    unsigned int ID;
+    int mNeighbours[3] = {-1,-1,-1};
+    int mIndices[3] =    {-1, -1, -1};
 
-    unsigned int mNeighbours[3];
-    unsigned int mIndices[3];
+    QVector3D mSurfaceNormal{0.f,0.f,1.f};
+    float mSurfaceArea{1.f};
+};
 
-    QVector3D mSurfaceNormal;
-    float mSurfaceArea;
+struct Square {
+    bool onUpper = false;
+    Triangle upper;
+    Triangle lower;
+};
+
+struct Sphere {
+    float radius{1.f};
 };
 
 //simple direction light
@@ -41,6 +48,7 @@ struct PhysicsProperties {
     QVector3D acceleration{0.f, 0.f, 0.f}; //increase in velocity per second
     QVector3D velocity{0.f, 0.f, 0.f}; //change of location
     float mass{1.f};
+    bool physic{true};
 };
 
 struct Buffers {
@@ -92,6 +100,11 @@ struct SurfaceLimits {
     float offsetMaxZ() const {
         return -z.y();
     }
+};
+
+struct CollisionResult {
+    bool collision;
+    float distance;
 };
 
 #endif // STRUCTS_H

@@ -39,6 +39,7 @@ public:
     void setLocation(QVector3D loc){mTransform.location = loc;}
     void setRotation(QVector3D rot){mTransform.rotation = rot;}
     void setScale(QVector3D scl)   {mTransform.scale = scl;}
+    void setScale(float s) {mTransform.scale = QVector3D(s, s, s);}
 
     Transform &getTransform() {return mTransform;}
     QVector3D getLocation() const { return mTransform.location;}
@@ -53,7 +54,7 @@ public:
     Vertex getVertex(unsigned int i) {return mVertices[i];}
     unsigned int getVertexCount() const {return mVertices.size();}
 
-private:
+protected:
     void initializeBuffers_impl(unsigned int *indexData, Vertex *vertexData, unsigned int indexCount, unsigned int vertexCount,
                                 Buffers &buffer, GLenum drawing = GL_STATIC_DRAW);
 };

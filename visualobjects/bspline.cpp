@@ -11,54 +11,8 @@ BSplineCurve::BSplineCurve(std::vector<float> knots, std::vector<QVector3D> cont
     :   t(knots), b(controlpoints), n(knots.size()), d(degree)
 {
     mDrawMode = GL_LINE_STRIP;
-    float acc = 0.01f;
 
-    move(QVector3D(0.f,0.f,0.02f));
-
-    unsigned int it = 0;
-    for(auto &cp : controlpoints)
-    {
-        mVertices.push_back(Vertex(cp.x(), cp.y(), cp.z()));
-
-        if(it < controlpoints.size() - 2)
-            mIndices.push_back(it);
-        if(it+1 < controlpoints.size())
-            mIndices.push_back(it+1);
-
-        it++;
-    }
-
-    qDebug() << "SIZE:" << mVertices.size();
-
-    //first and second loop index
-    unsigned int first = 0;
-    unsigned int second = mVertices.size();
-
-    while(first < t.size()) {
-
-        float delta = controlpoints[t[first]].x();
-
-        while(delta < t[first+1])
-        {
-            qDebug() << "delta :" << delta;
-            qDebug() << "knot :" << t[first] << t[first+1];
-
-            QVector3D v = evaluateBSpline(first, delta);
-
-            mVertices.push_back(Vertex(v.x(), v.y(), v.z()));
-
-            //Indices
-            mIndices.push_back(second);
-            //if(delta + acc < t[first+1])
-            mIndices.push_back(second + 1);
-
-            second++;
-            delta+=acc;
-        }
-
-        first++;
-    }
-
+    createCurve();
 //    for(unsigned int k = 0; k < 20; k++)
 //        mIndices.pop_back();
 }
@@ -97,18 +51,101 @@ QVector3D BSplineCurve::evaluateBSpline(int my, float x)
     return a[0];
 }
 
-int BSplineCurve::findKnotInterval(float x)
+
+QVector3D BSplineCurve::getLocationOnSpline(unsigned int &index, float delta, bool &end)
 {
-
-}
-
-QVector3D BSplineCurve::evaluateBSpline(int degree, int startKnot, float x)
-{
-
+    qDebug() << "size :" << mVertices.size();
+    if(index + 1 < mVertices.size())
+    {
+        end = false;
+        QVector3D result = delta * mVertices[index + 1] + (1 - delta) * mVertices[index];
+        return result * getScale();
+    }
+    else{
+        end = true;
+        index = 0;
+        return mVertices[0];
+    }
 }
 
 void BSplineCurve::draw(Shader &shader)
 {
     shader.uniform3f("color", 10.f, 10.f, 0.f);
     VisualObject::draw(shader);
+}
+
+void BSplineCurve::setNewValues(std::vector<float> knots, std::vector<QVector3D> controlpoints, int degree)
+{
+    t = knots;
+    b = controlpoints;
+    n = controlpoints.size();
+    d = degree;
+
+    createCurve();
+}
+
+void BSplineCurve::createCurve()
+{
+    mVertices.clear();
+    mIndices.clear();
+
+    float acc = 0.01f;
+
+    move(QVector3D(0.f,0.f,0.02f));
+
+    //unsigned int it = 0;
+//    for(auto &cp : controlpoints)
+//    {
+//        mVertices.push_back(Vertex(cp.x(), cp.y(), cp.z()));
+
+//        if(it < controlpoints.size() - 2)
+//            mIndices.push_back(it);
+//        if(it+1 < controlpoints.size())
+//            mIndices.push_back(it+1);
+
+//        it++;
+//    }
+
+    qDebug() << "SIZE:" << mVertices.size();
+
+    //first and second loop index
+    unsigned int first = 0;
+    unsigned int second = mVertices.size();
+
+    while(first < t.size()) {
+
+        float delta = t[first];//controlpoints[t[first]].x();
+
+        while(delta < t[first+1])
+        {
+            qDebug() << "delta :" << delta;
+            qDebug() << "knot :" << t[first] << t[first+1];
+
+            QVector3D v = evaluateBSpline(first, delta);
+
+            mVertices.push_back(Vertex(v.x(), v.y(), v.z()));
+
+            //Indices
+            if(delta + acc < t[first+1])
+            {
+                mIndices.push_back(second);
+                mIndices.push_back(second + 1);
+            }
+
+            second++;
+            delta+=acc;
+        }
+
+        first++;
+    }
+
+    initializeBuffers_impl(mIndices.data(), mVertices.data(), mIndices.size(), mVertices.size(), mBuffers, mDrawMode);
+}
+
+void BSplineCurve::operator =(const BSplineCurve &bs)
+{
+    t = bs.t;
+    b = bs.b;
+    n = bs.n;
+    d = bs.d;
 }

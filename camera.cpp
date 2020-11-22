@@ -111,3 +111,8 @@ void Camera::pitch(float delta)
 
     mTransform.rotation[0] += delta * mRotationSensitivity;
 }
+
+void Camera::zoom(float delta)
+{
+    mOffset += delta * mCameraZoomScale;
+}

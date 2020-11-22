@@ -69,7 +69,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
-    //    void wheelEvent(QWheelEvent *event) override{}
+    void wheelEvent(QWheelEvent *event) override;
 };
 
 #endif // RENDERWINDOW_H

@@ -15,8 +15,8 @@
 IndexedTriangleSurface::IndexedTriangleSurface(std::string data, std::string index, float scale, bool las)
     :   mVertexFile(data), mIndexFile(index), mScale(scale), mIsLasFile(las), mObjectTriangleIndex(0)
 {
-    mTag = "triangle surface";
-
+    //mTag = "triangle surface";
+    //mShaderType = EShader::plain;
 
 }
 
@@ -25,7 +25,7 @@ void IndexedTriangleSurface::run()
     if(mIsLasFile)
     {
         readConvertedLasFile(mVertexFile);
-        calculateSurfaceNormal();
+        //calculateSurfaceNormal();
         calculateVertexNormal();
     }
     else
@@ -48,7 +48,7 @@ void IndexedTriangleSurface::run()
 
 void IndexedTriangleSurface::draw(Shader &shader)
 {
-    shader.uniform3f("color", 4.f, 2.f, 3.f);
+    shader.uniform3f("color", 0.8f, 0.4f, 0.6f);
     VisualObject::draw(shader);
 }
 
@@ -133,21 +133,22 @@ void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
         }
     }
 
-    //mCol = 7;
-    //mRow = 7;
+//    mCol = 5;
+//    mRow = 5;
 
 //    for(unsigned int y = 0; y <= mRow; y++)
 //    {
-//        qDebug() << "y :" << y;
-
 //        for(unsigned int x = 0; x <= mCol; x++)
 //        {
-//            qDebug() << "x :" << x;
-//            mVertices.push_back(Vertex((float)x * 2.f, (float)y * 2.f, 0.f, 0.f, 0.f, 1.f, (float) x, (float) y));
+//            mVertices.push_back(Vertex((float)x * deltaX, (float)y * deltaY, 0.f, 0.f, 0.f, 1.f, (float) x, (float) y));
 //        }
 //    }
 
-    //mVertices[5*(mCol+1) + 5].z = 20.f;
+//    mVertices[vertexIndex(5, 0)].z = 20.f;
+//    mVertices[vertexIndex(4, 0)].z = 10.f;
+//    mVertices[vertexIndex(3, 5)].z = 10.f;
+//    mVertices[vertexIndex(4, 5)].z = 20.f;
+//    mVertices[vertexIndex(0, 3)].z = 10.f;
 
     mSquareSize[0] = deltaX;
     mSquareSize[1] = deltaY;
@@ -158,16 +159,11 @@ void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
     //float testx = 22.f;
     //float testy = 26.f;
 //    qDebug() << "square at :" << testx << testy;
-//    qDebug() << "result :" << getSquare(testx, testy);
-
-    assertIndices();
+//    qDebug() << "result :" << getSquare(testx, testy);    
 
     //read las file
     if (file.is_open())
     {
-        //file while-loop count
-        unsigned int count = 0;
-
         while(!file.eof())
         {
             //read three floats from file
@@ -181,22 +177,18 @@ void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
             if(v1 >= 0.f && v1 <= mTotalSize.x() && v2 >= 0.f && v2 <= mTotalSize.y())
             {
                 QPoint square = getSquare(v1, v2);
-                mVertices[square.y() * mCol + square.x()].z = v3;
+                mVertices[vertexIndex(square)].z = v3;
             }
-//            mLasData.push_back(QVector3D((v1 + mLimit.offsetMinX()) * mScale, (v2 + mLimit.offsetMinY()) * mScale, (v3 + mLimit.offsetMaxZ()) * mScale));
-//            mIndices.push_back(count);
-
-            count++;
         }
 
-        file.close();
-
-
+        file.close();        
     }
     else
     {
         qDebug() << "(indexedtrianglesurface) Can't read datafile!";
     }
+
+    assertIndices();
 
     qDebug() << "surface size :" << mVertices.size();
 }
@@ -206,49 +198,70 @@ void IndexedTriangleSurface::assertIndices()
     unsigned int lti[3];
     unsigned int uti[3];
 
-    unsigned int tc = 0;
+//    mSquares.clear();
+//    mSquares.shrink_to_fit();
+    mTriangles.clear();
+
+    mSquares.resize(vertexIndex(mCol-1, mRow-1) + 1);
+    qDebug() << "mSquares size :" << vertexIndex(mCol-1, mRow-1);
+
     for(unsigned int y = 0; y < mRow; y++)
     {
         for(unsigned int x = 0; x < mCol; x++)
         {
             //Lower Triangle
 
-            lti[0] = y * (mCol+1) + x;
-            lti[1] = y * (mCol+1) + x + 1;
-            lti[2] = y * (mCol+1) + x + mCol + 1;
+            qDebug() << "triangle at (" << x << y << ")" << vertexIndex(x, y) << ":";
+            lti[0] = vertexIndex(x, y);
+            lti[1] = vertexIndex(x+1, y);
+            lti[2] = vertexIndex(x, y+1);
 
             mIndices.push_back(lti[0]);
             mIndices.push_back(lti[1]);
             mIndices.push_back(lti[2]);
 
-            Triangle ltriangle(tc);
-            ltriangle.mIndices[0] = lti[0];
-            ltriangle.mIndices[1] = lti[1];
-            ltriangle.mIndices[2] = lti[2];
-            mTriangles.push_back(ltriangle);
-            tc++;
+            Square square;
+
+            square.lower.mIndices[0] = lti[0];
+            square.lower.mIndices[1] = lti[1];
+            square.lower.mIndices[2] = lti[2];
+
+            square.lower.mSurfaceNormal = CalculateTriangleNormal(mVertices[lti[0]], mVertices[lti[1]], mVertices[lti[2]]);
+            square.lower.mSurfaceNormal.normalize();
+
+            mTriangles.push_back(square.lower);
+
+            qDebug() << "vertecies :" << mVertices[lti[0]] << mVertices[lti[1]] << mVertices[lti[2]];
+            qDebug() << "surface normal :" << square.lower.mSurfaceNormal;
 
             //Upper Triangle
 
-            uti[0] =  y * (mCol+1) + x + mCol + 2;
-            uti[1] =  y * (mCol+1) + x + mCol + 1;
-            uti[2] =  y * (mCol+1) + x + 1;
+            uti[0] = vertexIndex(x+1, y+1);
+            uti[1] = vertexIndex(x, y+1);
+            uti[2] = vertexIndex(x+1, y);
 
             mIndices.push_back(uti[0]);
             mIndices.push_back(uti[1]);
             mIndices.push_back(uti[2]);
 
-            Triangle utriangle(tc);
-            utriangle.mIndices[0] = uti[0];
-            utriangle.mIndices[1] = uti[1];
-            utriangle.mIndices[2] = uti[2];
-            mTriangles.push_back(utriangle);
-            tc++;
+            square.upper.mIndices[0] = uti[0];
+            square.upper.mIndices[1] = uti[1];
+            square.upper.mIndices[2] = uti[2];
+
+            qDebug() << "vertecies :" << mVertices[uti[0]] << mVertices[uti[1]] << mVertices[uti[2]];
+
+            square.upper.mSurfaceNormal = CalculateTriangleNormal(mVertices[uti[0]], mVertices[uti[1]], mVertices[uti[2]]);
+            square.upper.mSurfaceNormal.normalize();
+
+            qDebug() << "surface normal :" << square.upper.mSurfaceNormal;
+
+            mTriangles.push_back(square.upper);
+            mSquares[vertexIndex(x, y)] = square;
         }
     }
 }
 
-QPoint IndexedTriangleSurface::getSquare(float x, float y)
+QPoint IndexedTriangleSurface::getSquare(float x, float y) const
 {
     //Where we are relative to the terrain
     float resultX = x;// + mTotalSize.x() / 2.f;
@@ -259,6 +272,26 @@ QPoint IndexedTriangleSurface::getSquare(float x, float y)
     int gridY = (int) floorf(resultY / mSquareSize.y());
 
     return QPoint(gridX, gridY);
+}
+
+Triangle *IndexedTriangleSurface::getTriangle(float x, float y)
+{
+    int index = vertexIndex(getSquare(x, y));
+
+    if(index >= 0 && (unsigned int)index < mSquares.size())
+    {
+        if(mSquares[index].onUpper)
+            return &mSquares[index].upper;
+        else
+            return &mSquares[index].lower;
+    }
+    else
+    {
+        qDebug() << "[WARNING] (trianglesurface) gettriangle(x,y) square nullptr.";
+        qDebug() << "square index : " << index;
+        qDebug() << "square vector size :" << mSquares.size();
+        return nullptr;
+    }
 }
 
 void IndexedTriangleSurface::readCutsomFile(std::string filename)
@@ -316,14 +349,10 @@ void IndexedTriangleSurface::readCustomIndexFile(std::string filename)
             mIndices.push_back(v2);
             mIndices.push_back(v3);
 
-            Triangle t(count);
+            Triangle t;
             t.mIndices[0] = v1;
             t.mIndices[1] = v2;
             t.mIndices[2] = v3;
-
-//            t.mPosition[0] = mVertices[v1];
-//            t.mPosition[1] = mVertices[v2];
-//            t.mPosition[2] = mVertices[v3];
 
             unsigned int i1, i2, i3;
             file >> i1 >> i2 >> i3;
@@ -399,6 +428,8 @@ float IndexedTriangleSurface::heightAtLocation(float x, float y)
     int gridX = (int) floorf(resultX / mSquareSize.x());
     int gridY = (int) floorf(resultY / mSquareSize.y());
 
+    //qDebug() << gridX << gridY;
+
     if((unsigned int)gridX >= mCol || (unsigned int)gridY >= mRow || gridX < 0 || gridY < 0)
     {
         return 0.f;
@@ -418,9 +449,14 @@ float IndexedTriangleSurface::heightAtLocation(float x, float y)
     //lower left triangle
     if(squareCoordX <= (1 - squareCoordY))
     {
-        iv0 = (gridY * (mCol+1)) + gridX                 ;
-        iv1 = (gridY * (mCol+1)) + (gridX + 1)           ;
-        iv2 = (gridY * (mCol+1)) + (gridX + 1) + mCol ;
+        iv0 = vertexIndex(gridX, gridY);//row(gridY) + col(gridX);
+        iv1 = vertexIndex(gridX+1, gridY);//row(gridY) + col(gridX+1);
+        iv2 = vertexIndex(gridX, gridY+1);//row(gridY) + row(1) + col(gridX);
+
+        mObjectSquareIndex = vertexIndex(gridX, gridY);
+
+        if(mObjectSquareIndex >= 0 && mObjectSquareIndex < mSquares.size())
+            mSquares[mObjectSquareIndex].onUpper = false;
 
         triangle[1] = mVertices[iv0];
         triangle[2] = mVertices[iv1];
@@ -437,9 +473,14 @@ float IndexedTriangleSurface::heightAtLocation(float x, float y)
     //upper right triangle
     else
     {
-        iv0 = gridY * (mCol+1) + gridX + mCol + 2;
-        iv1 = gridY * (mCol+1) + gridX + mCol + 1;
-        iv2 = gridY * (mCol+1) + gridX + 1;
+        iv0 = vertexIndex(gridX+1, gridY+1);//row(gridY) + row(1) + col(gridX+1);
+        iv1 = vertexIndex(gridX, gridY+1);  //row(gridY) + row(1) + col(gridX);
+        iv2 = vertexIndex(gridX+1, gridY);  //row(gridY) + col(gridX+1);
+
+        mObjectSquareIndex = vertexIndex(gridX, gridY);
+
+        if(mObjectSquareIndex >= 0 && mObjectSquareIndex < mSquares.size())
+            mSquares[mObjectSquareIndex].onUpper = true;
 
         triangle[1] = mVertices[iv0];
         triangle[2] = mVertices[iv1];
@@ -454,7 +495,6 @@ float IndexedTriangleSurface::heightAtLocation(float x, float y)
         result = (triangle[0].z * b.x()) + (triangle[1].z * b.y()) + (triangle[2].z * b.z());
     }
 
-    qDebug() << "HERE1";
     return result;
 }
 
@@ -467,7 +507,7 @@ float IndexedTriangleSurface::barycentricHeightSearch(QVector2D loc)
     for(unsigned int i = 0; i < 3; i++)
     {
         //qDebug() << "Triangle" << i << getCurrentTriangle().mPosition[i];
-        t[i] = mVertices[ getCurrentTriangle().mIndices[i] ];
+        t[i] = mVertices[ getCurrentTriangle(loc.x(), loc.y()).mIndices[i] ];
     }
 
     //qDebug() << "LOC :" << loc;
@@ -489,10 +529,10 @@ float IndexedTriangleSurface::barycentricHeightSearch(QVector2D loc)
         {
             if(bc[i] < 0.f)
             {
-                if(getCurrentTriangle().mNeighbours[i] != -1)
+                if(getCurrentTriangle(loc.x(), loc.y()).mNeighbours[i] != -1)
                 {
                     //qDebug() << "OPP " << i << "," << getCurrentTriangle().mAdjacentTriangles[i];
-                    mObjectTriangleIndex = getCurrentTriangle().mNeighbours[i];
+                    mObjectTriangleIndex = getCurrentTriangle(loc.x(), loc.y()).mNeighbours[i];
                     break;
                 }
                 else
@@ -507,9 +547,34 @@ float IndexedTriangleSurface::barycentricHeightSearch(QVector2D loc)
     }
 }
 
-const Triangle &IndexedTriangleSurface::getCurrentTriangle() const
+const Triangle &IndexedTriangleSurface::getCurrentTriangle(float x, float y) const
 {
     return mTriangles[mObjectTriangleIndex];
+}
+
+const Square &IndexedTriangleSurface::getCurrentSquare(float x, float y) const
+{
+    return mSquares[vertexIndex(getSquare(x, y))];
+}
+
+unsigned IndexedTriangleSurface::vertexIndex(QPoint point) const
+{
+    return vertexIndex(point.x(), point.y());
+}
+
+unsigned IndexedTriangleSurface::vertexIndex(unsigned int x, unsigned int y) const
+{
+    return row(y) + col(x);
+}
+
+unsigned int IndexedTriangleSurface::row(unsigned int i) const
+{
+    return i * (mCol+1);
+}
+
+unsigned int IndexedTriangleSurface::col(unsigned int i) const
+{
+    return i;
 }
 
 void IndexedTriangleSurface::calculateSurfaceNormal()
@@ -565,6 +630,7 @@ void IndexedTriangleSurface::calculateVertexNormal()
 
         //Calculate vertex normal and set current vertex normals to it
         QVector3D averageNormal = MyMathFunctions::average3DVector(surfaceNormals);
+        averageNormal.normalize();
         mVertices[i].setRGB(averageNormal.x(), averageNormal.y(), averageNormal.z());
     }
 }

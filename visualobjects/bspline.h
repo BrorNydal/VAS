@@ -15,10 +15,16 @@ public:
     void setKnotsAndControlPoints(std::vector<float> knots, std::vector<QVector3D> points);
 
     QVector3D evaluateBSpline(int my, float x);
-    int findKnotInterval(float x);
-    QVector3D evaluateBSpline(int degree, int startKnot, float x);
+
+    QVector3D getLocationOnSpline(unsigned int &index, float delta, bool &end);
 
     virtual void draw(Shader &shader) override;
+
+    void setNewValues(std::vector<float> knots, std::vector<QVector3D> controlpoints, int degree = 2);
+    void createCurve();
+
+    void operator = (const BSplineCurve &bs);
+
 private:
     std::vector<float> t; // knots
     std::vector<QVector3D> b; // controll points
