@@ -48,6 +48,8 @@ CollisionResult PhysicsEngine::CheckCollision(const Sphere &s1, Transform &t1, c
         result.collision = true;
         qDebug() << "(physicsengine) collision!";
     }
+    else
+        result.collision = false;
 
     return result;
 }
@@ -75,38 +77,38 @@ void PhysicsEngine::handleCollision(const Sphere &s1, PhysicsProperties &pp1, Tr
 
         if(pp1.velocity != QVector3D(0.f,0.f,0.f))
         {
-//            QVector3D v1 = pp1.velocity.normalized();
+            QVector3D v1 = pp1.velocity.normalized();
 
-//            float angle1 = acosf((v1.x() * to1.x() + v1.y() * to1.y()) / (sqrtf(v1.x() * v1.x() + v1.y() * v1.y()) * sqrtf(to1.x() * to1.x() + to1.y() * to1.y())));
+            float angle1 = acosf((v1.x() * to1.x() + v1.y() * to1.y()) / (sqrtf(v1.x() * v1.x() + v1.y() * v1.y()) * sqrtf(to1.x() * to1.x() + to1.y() * to1.y())));
 
-//            qDebug() << "Angle :" << angle1;
+            qDebug() << "Angle :" << angle1;
 
-//            QMatrix4x4 yawMat;
-//            yawMat.setToIdentity();
+            QMatrix4x4 yawMat;
+            yawMat.setToIdentity();
 
-//            yawMat.rotate(angle1, QVector3D(0.f,0.f,1.f));
+            yawMat.rotate(angle1, QVector3D(0.f,0.f,1.f));
 
-//            QVector3D result = (yawMat * to2).normalized();
+            QVector3D result = (yawMat * to2).normalized();
             QVector3D old = pp1.velocity;
-            pp1.velocity += pp2.velocity - pp1.velocity; //(result * -1.f * m1)
-            pp2.velocity += old - pp2.velocity; //result * m2
+            pp1.velocity += pp2.velocity - pp1.velocity + (-result) * m1; //(result * -1.f * m1)
+            pp2.velocity += old - pp2.velocity + (result) * m2; //result * m2
         }
         else if(pp2.velocity != QVector3D(0.f, 0.f, 0.f))
         {
-//            QVector3D v1 = pp2.velocity.normalized();
+            QVector3D v1 = pp2.velocity.normalized();
 
-//            float angle1 = acosf((v1.x() * to2.x() + v1.y() * to2.y()) / (sqrtf(v1.x() * v1.x() + v1.y() * v1.y()) * sqrtf(to2.x() * to2.x() + to2.y() * to2.y())));
+            float angle1 = acosf((v1.x() * to2.x() + v1.y() * to2.y()) / (sqrtf(v1.x() * v1.x() + v1.y() * v1.y()) * sqrtf(to2.x() * to2.x() + to2.y() * to2.y())));
 
-//            qDebug() << "Angle :" << angle1;
+            qDebug() << "Angle :" << angle1;
 
-//            QMatrix4x4 yawMat;
-//            yawMat.setToIdentity();
+            QMatrix4x4 yawMat;
+            yawMat.setToIdentity();
 
-//            yawMat.rotate(angle1, QVector3D(0.f,0.f,1.f));
+            yawMat.rotate(angle1, QVector3D(0.f,0.f,1.f));
 
-//            QVector3D result = (yawMat * to1).normalized();
-            pp1.velocity += pp2.velocity;
-            //pp2.velocity += -1.f * result * m2;
+            QVector3D result = (yawMat * to1).normalized();
+            pp1.velocity += pp2.velocity + (result) * m1;
+            pp2.velocity += -1.f * result * m2;
         }
 
     }

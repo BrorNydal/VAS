@@ -3,6 +3,12 @@
 
 #include <QVector3D>
 #include <QVector2D>
+#include <cmath>
+
+static bool CompareFloats(float a, float b)
+{
+    return fabs(a - b) < __FLT_EPSILON__;
+}
 
 static QVector3D BarycentricCoordinates(const QVector2D &v, const QVector2D &v1, const QVector2D &v2, const QVector2D &v3){
     QVector2D v12 = v2-v1;   //Vec2

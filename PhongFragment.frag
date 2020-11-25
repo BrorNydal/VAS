@@ -33,7 +33,7 @@ void main()
     // specular
     vec3 viewDir = normalize(viewLocation - fragPosition);
     vec3 reflectDir = reflect(-lightDirection, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.f); // last = shininess
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 24.f); // last = shininess
     vec3 specular = light.specular * spec;
 
     vec4 result = vec4((ambient + diffuse + specular), 1.0) * vec4(color, 1.0);

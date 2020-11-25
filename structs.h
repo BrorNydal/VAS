@@ -29,7 +29,7 @@ struct Sphere {
 
 //simple direction light
 struct LightProperties {
-    LightProperties(float a = 0.1f, float d = 0.1f, float s = 0.3f){
+    LightProperties(float a = 0.06f, float d = 0.7f, float s = 0.3f){
         for(unsigned int i = 0; i < 3; i++)
         {
             ambient[i] = a;

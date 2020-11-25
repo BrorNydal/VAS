@@ -115,4 +115,8 @@ void Camera::pitch(float delta)
 void Camera::zoom(float delta)
 {
     mOffset += delta * mCameraZoomScale;
+    if(mOffset < mMinCameraOffset)
+        mOffset = mMinCameraOffset;
+    else if(mOffset > mMaxCameraOffset)
+        mOffset = mMaxCameraOffset;
 }

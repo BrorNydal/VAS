@@ -98,8 +98,8 @@ void RenderWindow::init()
     glEnable( GL_BLEND );
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    mScenes.push_back(new Scene1());
-    mScenes.push_back(new Scene2());
+    //mScenes.push_back(new Scene1());
+    //mScenes.push_back(new Scene2());
     mScenes.push_back(new Scene3());
 }
 

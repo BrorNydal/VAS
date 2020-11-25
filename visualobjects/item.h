@@ -1,13 +1,13 @@
 #ifndef ITEM_H
 #define ITEM_H
 
-#include "visualobject.h"
+#include "obj.h"
 
-class Item : public VisualObject
+class Item : public OBJ
 {
 public:
     Item();
-
+    virtual void draw(Shader &shader) override;
 
 };
 

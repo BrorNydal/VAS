@@ -63,12 +63,15 @@ void Scene::draw(float deltaTime)
 
     for(auto it = mObjects.begin(); it != mObjects.end(); it++)
     {
-        glUseProgram(mShaders[(*it)->getShader()]->getID());
-        current = (*it)->getShader();
+        if((*it)->IsActive())
+        {
+            glUseProgram(mShaders[(*it)->getShader()]->getID());
+            current = (*it)->getShader();
 
-        mCamera.render(*mShaders[current]);
+            mCamera.render(*mShaders[current]);
 
-        (*it)->draw(*mShaders[(*it)->getShader()]);
+            (*it)->draw(*mShaders[(*it)->getShader()]);
+        }
     }
 
     if(mLockCameraToBall)

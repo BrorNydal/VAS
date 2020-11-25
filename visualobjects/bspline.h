@@ -10,13 +10,11 @@ class BSplineCurve : public VisualObject
 {
 public:
     BSplineCurve();
-    BSplineCurve(std::vector<float> knots, std::vector<QVector3D> controlpoints, int degree = 2);
-
-    void setKnotsAndControlPoints(std::vector<float> knots, std::vector<QVector3D> points);
 
     QVector3D evaluateBSpline(int my, float x);
 
     QVector3D getLocationOnSpline(unsigned int &index, float delta, bool &end);
+    float lengthOfCurrentStep(unsigned int index);
 
     virtual void draw(Shader &shader) override;
 
@@ -31,7 +29,11 @@ private:
     int n; // n = number of knots
     int d; // d = degree
 
+    float xmax{0.f}, ymax{0.f};
+    float xmin{0.f}, ymin{0.f};
+
     QVector3D mColor{1.f,0.f,1.f};
+    bool mIncludeCP{false};
 };
 
 #endif // BSPLINE_H

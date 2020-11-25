@@ -31,11 +31,10 @@ void Scene1::draw(float deltaTime)
 
 void Scene1::listObjects()
 {    
-//    std::vector<float> knots{0,0,0,1,2,2,2};
-//    std::vector<QVector3D> cp{QVector3D(0.f,0.f,0.f),
-//                              QVector3D(1.f,0.f,0.f),
-//                              QVector3D(1.f,1.f,0.f),
-//                              QVector3D(0.f,1.f,0.f)};
+//    std::vector<float> knots{0,0,0,1,1,1};
+//    std::vector<QVector3D> cp{QVector3D(0.433532f, 0.672007f, 1.f),
+//                              QVector3D(0.f,0.f,0.f),
+//                              QVector3D(1.f,1.f,0.f)};
 
 //    mObjects.push_back(new BSplineCurve(knots, cp, 2));
 

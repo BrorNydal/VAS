@@ -18,7 +18,7 @@ OctahedronBall::OctahedronBall(float radius, int rekursions)
 
 void OctahedronBall::draw(Shader &shader)
 {
-    shader.uniform3f("color", 4.f, 4.f, 9.f);
+    shader.uniform3f("color", 1.f, 0.f, 0.f);
     VisualObject::draw(shader);
 }
 

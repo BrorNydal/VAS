@@ -48,7 +48,7 @@ void IndexedTriangleSurface::run()
 
 void IndexedTriangleSurface::draw(Shader &shader)
 {
-    shader.uniform3f("color", 0.8f, 0.4f, 0.6f);
+    shader.uniform3f("color", 0.f, 0.f, 1.f);
     VisualObject::draw(shader);
 }
 
@@ -116,11 +116,6 @@ void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
     float deltaX = lengthX / mResolution.x();
     float deltaY = lengthY / mResolution.y();
 
-    qDebug() << "length x :" << lengthX;
-    qDebug() << "length y :" << lengthY;
-    qDebug() << "delta x :" << deltaX;
-    qDebug() << "delta y :" << deltaY;
-
     mCol = lengthX / deltaX;
     mRow = lengthY / deltaY;
 
@@ -155,7 +150,6 @@ void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
     mTotalSize[0] = deltaX * (float)mCol;
     mTotalSize[1] = deltaY * (float)mRow;
 
-    qDebug() << "total size :" << mTotalSize;
     //float testx = 22.f;
     //float testy = 26.f;
 //    qDebug() << "square at :" << testx << testy;
@@ -189,8 +183,6 @@ void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
     }
 
     assertIndices();
-
-    qDebug() << "surface size :" << mVertices.size();
 }
 
 void IndexedTriangleSurface::assertIndices()
@@ -203,7 +195,6 @@ void IndexedTriangleSurface::assertIndices()
     mTriangles.clear();
 
     mSquares.resize(vertexIndex(mCol-1, mRow-1) + 1);
-    qDebug() << "mSquares size :" << vertexIndex(mCol-1, mRow-1);
 
     for(unsigned int y = 0; y < mRow; y++)
     {
@@ -211,7 +202,6 @@ void IndexedTriangleSurface::assertIndices()
         {
             //Lower Triangle
 
-            qDebug() << "triangle at (" << x << y << ")" << vertexIndex(x, y) << ":";
             lti[0] = vertexIndex(x, y);
             lti[1] = vertexIndex(x+1, y);
             lti[2] = vertexIndex(x, y+1);
@@ -231,9 +221,6 @@ void IndexedTriangleSurface::assertIndices()
 
             mTriangles.push_back(square.lower);
 
-            qDebug() << "vertecies :" << mVertices[lti[0]] << mVertices[lti[1]] << mVertices[lti[2]];
-            qDebug() << "surface normal :" << square.lower.mSurfaceNormal;
-
             //Upper Triangle
 
             uti[0] = vertexIndex(x+1, y+1);
@@ -248,12 +235,8 @@ void IndexedTriangleSurface::assertIndices()
             square.upper.mIndices[1] = uti[1];
             square.upper.mIndices[2] = uti[2];
 
-            qDebug() << "vertecies :" << mVertices[uti[0]] << mVertices[uti[1]] << mVertices[uti[2]];
-
             square.upper.mSurfaceNormal = CalculateTriangleNormal(mVertices[uti[0]], mVertices[uti[1]], mVertices[uti[2]]);
             square.upper.mSurfaceNormal.normalize();
-
-            qDebug() << "surface normal :" << square.upper.mSurfaceNormal;
 
             mTriangles.push_back(square.upper);
             mSquares[vertexIndex(x, y)] = square;

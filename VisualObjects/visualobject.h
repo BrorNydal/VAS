@@ -24,6 +24,8 @@ protected:
     bool mDrawArrays = false;
     EShader mShaderType{EShader::phong};
 
+    bool mActive{true};
+
 public:
     VisualObject()
     {
@@ -31,6 +33,10 @@ public:
     }
     ~VisualObject()
     {}
+
+    void Activate() {mActive = true;}
+    void Deactivate() {mActive = false;}
+    bool IsActive() const {return mActive;}
 
     virtual void init(); //Skal bare ha et parameter, matrix uniform
     virtual void draw(Shader &shader);    
@@ -48,7 +54,7 @@ public:
 
     EShader getShader() const {return mShaderType;}
 
-    void scale(float factor){mTransform.scale * factor;}
+    void scale(float factor){mTransform.scale *= factor;}
     void move(QVector3D trans){mTransform.location += trans;}
 
     Vertex getVertex(unsigned int i) {return mVertices[i];}
