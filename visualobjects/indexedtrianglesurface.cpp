@@ -125,6 +125,7 @@ void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
         for(unsigned int x = 0; x <= mCol; x++)
         {
             mVertices.push_back(Vertex((float)x * deltaX, (float)y * deltaY, 0.f, 0.f, 0.f, 1.f, (float) x, (float) y));
+            mHeightData[std::pair<unsigned int, unsigned int>(x, y)] = std::pair<unsigned int, float>();
         }
     }
 
@@ -150,12 +151,17 @@ void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
     mTotalSize[0] = deltaX * (float)mCol;
     mTotalSize[1] = deltaY * (float)mRow;
 
+    if(deltaX >= deltaY)
+        mHeightAcceptanceRadius = deltaX;
+    else
+        mHeightAcceptanceRadius = deltaY;
+
     //float testx = 22.f;
     //float testy = 26.f;
 //    qDebug() << "square at :" << testx << testy;
 //    qDebug() << "result :" << getSquare(testx, testy);    
 
-    //read las file
+    //read las file, fetch height data
     if (file.is_open())
     {
         while(!file.eof())
@@ -171,7 +177,38 @@ void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
             if(v1 >= 0.f && v1 <= mTotalSize.x() && v2 >= 0.f && v2 <= mTotalSize.y())
             {
                 QPoint square = getSquare(v1, v2);
-                mVertices[vertexIndex(square)].z = v3;
+
+                //give data to each vertex in square
+
+                //bottom left
+                if((QVector2D(v1, v2) - QVector2D(mVertices[vertexIndex(square)].x, mVertices[vertexIndex(square)].y)).length() < mHeightAcceptanceRadius)
+                {
+                    mHeightData[std::pair<unsigned int, unsigned int>(square.x(), square.y())].first++;
+                    mHeightData[std::pair<unsigned int, unsigned int>(square.x(), square.y())].second += v3;
+                }
+
+                //bottom right
+                if((QVector2D(v1, v2) - QVector2D(mVertices[vertexIndex(square.x() + 1, square.y())].x, mVertices[vertexIndex(square.x() + 1, square.y())].y)).length() < mHeightAcceptanceRadius)
+                {
+                    mHeightData[std::pair<unsigned int, unsigned int>(square.x() + 1, square.y())].first++;
+                    mHeightData[std::pair<unsigned int, unsigned int>(square.x() + 1, square.y())].second += v3;
+                }
+
+                //top left
+                if((QVector2D(v1, v2) - QVector2D(mVertices[vertexIndex(square.x(), square.y() + 1)].x, mVertices[vertexIndex(square.x(), square.y() + 1)].y)).length() < mHeightAcceptanceRadius)
+                {
+                    mHeightData[std::pair<unsigned int, unsigned int>(square.x(), square.y() + 1)].first++;
+                    mHeightData[std::pair<unsigned int, unsigned int>(square.x(), square.y() + 1)].second += v3;
+                }
+
+                //top right
+                if((QVector2D(v1, v2) - QVector2D(mVertices[vertexIndex(square.x() + 1, square.y() + 1)].x, mVertices[vertexIndex(square.x() + 1, square.y() + 1)].y)).length() < mHeightAcceptanceRadius)
+                {
+                    mHeightData[std::pair<unsigned int, unsigned int>(square.x() + 1, square.y() + 1)].first++;
+                    mHeightData[std::pair<unsigned int, unsigned int>(square.x() + 1, square.y() + 1)].second += v3;
+                }
+
+                //mVertices[vertexIndex(square)].z = v3;
             }
         }
 
@@ -180,6 +217,20 @@ void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
     else
     {
         qDebug() << "(indexedtrianglesurface) Can't read datafile!";
+    }
+
+    for(unsigned int y = 0; y < mRow; y++)
+    {
+        for(unsigned int x = 0; x < mCol; x++)
+        {
+            const unsigned int count = mHeightData[std::pair<unsigned int, unsigned int>(x, y)].first;
+            const float total = mHeightData[std::pair<unsigned int, unsigned int>(x, y)].second;
+
+            if(count > 0)
+                mVertices[vertexIndex(x, y)].z = total / count;
+            else
+                mVertices[vertexIndex(x, y)].z = 0.f;
+        }
     }
 
     assertIndices();
@@ -402,6 +453,9 @@ void IndexedTriangleSurface::writeFile()
 
 float IndexedTriangleSurface::heightAtLocation(float x, float y)
 {
+    if(!mIsLasFile)
+        return barycentricHeightSearch(QVector2D(x, y));
+
     //Where we are relative to the terrain
     //need to apply offset, atm only works when vertex[0] starts at (0,0)
     float resultX = x;// + mTotalSize.x() / 2.f;

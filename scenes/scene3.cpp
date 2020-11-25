@@ -3,7 +3,8 @@
 #include "obj.h"
 #include "structs.h"
 
-Scene3::Scene3()
+Scene3::Scene3(IndexedTriangleSurface *ts)
+    :   Scene(ts)
 {
     initializeScene();
 }
@@ -123,8 +124,8 @@ void Scene3::reset()
 
 void Scene3::listObjects()
 {
-    mTriangleSurface = new IndexedTriangleSurface("test_las", "none", 1.f, true);
-    mTriangleSurface->run();
+    //mTriangleSurface = new IndexedTriangleSurface("test_las", "none", 1.f, true);
+    //mTriangleSurface->run();
 
     //std::vector<float> k;
     //std::vector<QVector3D> cp;
@@ -134,40 +135,73 @@ void Scene3::listObjects()
     std::vector<float> k1 = {0,0,1,2,3,3};
     std::vector<QVector3D> cp1 = {QVector3D(10.f, 10.f, 0.f),
                                  QVector3D(30.f, 10.f, 0.f)};
+    BSplineCurve *bc0 = new BSplineCurve();
+    mObjects.push_back(bc0);
     BSplineCurve *bc1 = new BSplineCurve();
     mObjects.push_back(bc1);
     //bc1->setNewValues(k1, cp1, 2);
 
+    std::vector<Item*> is0;
     Item *i0 = new Item();
-    i0->setLocation({5.f, 5.f, 0.f});
+    is0.push_back(i0);
+    placeObject(i0, {100.f, 600.f});
     mItems.push_back(i0);
     mObjects.push_back(i0);
     Item *i1 = new Item();
-    i1->setLocation({30.f, 5.f, 0.f});
+    is0.push_back(i1);
+    placeObject(i1, {400.f, 600.f});
     mItems.push_back(i1);
     mObjects.push_back(i1);
     Item *i2 = new Item();
-    i2->setLocation({50.f, 30.f, 0.f});
+    is0.push_back(i2);
+    placeObject(i2, {200.f, 400.f});
     mItems.push_back(i2);
     mObjects.push_back(i2);
     Item *i3 = new Item();
-    i3->setLocation({5.f, 30.f, 0.f});
+    is0.push_back(i3);
+    placeObject(i3, {380.f, 300.f});
     mItems.push_back(i3);
     mObjects.push_back(i3);
 
-    Enemy *e0 = new Enemy(bc1, &mBall);
-    e0->setItemsGuarding(mItems);
+    Enemy *e0 = new Enemy(bc0, &mBall);
+    placeObject(e0, {210.f, 100.f});
+    e0->setItemsGuarding(is0);
     mObjects.push_back(e0);
     mEnemies.push_back(e0);
-    e0->setLocation({10.f, 20.f, 0.f});
-    //e0->findPath();
+
+    std::vector<Item*> is1;
+    Item *i4 = new Item();
+    is1.push_back(i4);
+    placeObject(i4, {200.f, 100.f});
+    mItems.push_back(i4);
+    mObjects.push_back(i4);
+    Item *i5 = new Item();
+    is1.push_back(i5);
+    placeObject(i5, {300.f, 200.f});
+    mItems.push_back(i5);
+    mObjects.push_back(i5);
+    Item *i6 = new Item();
+    is1.push_back(i6);
+    placeObject(i6, {300.f, 300.f});
+    mItems.push_back(i6);
+    mObjects.push_back(i6);
+    Item *i7 = new Item();
+    is1.push_back(i7);
+    placeObject(i7, {400.f, 80.f});
+    mItems.push_back(i7);
+    mObjects.push_back(i7);
+
+    Enemy *e1 = new Enemy(bc1, &mBall);
+    placeObject(e1, {210.f, 100.f});
+    e1->setItemsGuarding(is1);
+    mObjects.push_back(e1);
+    mEnemies.push_back(e1);
 
     RollingBall *p0 = new RollingBall();
-    mDefaultPositions[p0] = QVector3D(50.f, 50.f, 0.f);
+    placeObject(p0, {400.f, 930.f});
     mObjects.push_back(p0);
     mPhysicsObjects.push_back(p0);
-    p0->setLocation(mDefaultPositions[p0]);
 
-    mBall.setLocation({20.f,80.f,0.f});
+    placeObject(&mBall, {400.824f, 840.358f});
     //mPhysicsObjects.push_back(&mBall);
 }

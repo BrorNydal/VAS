@@ -10,7 +10,7 @@ class Scene2 : public Scene
 protected:
 
 public:
-    Scene2();
+    Scene2(IndexedTriangleSurface *ts = nullptr);
 
     virtual void draw(float deltaTime) override;
 

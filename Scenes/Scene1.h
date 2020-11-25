@@ -13,7 +13,7 @@ private:
 
 
 public:
-    Scene1();
+    Scene1(IndexedTriangleSurface *ts = nullptr);
 
     virtual void draw(float deltaTime) override;
     virtual void listObjects() override;

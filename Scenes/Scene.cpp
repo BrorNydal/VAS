@@ -1,11 +1,14 @@
 #include "scene.h"
 
-Scene::Scene()
+Scene::Scene(IndexedTriangleSurface *ts)
 {
     initializeOpenGLFunctions();
 
     mShaders[EShader::plain] = new Shader("../VAS/plainvertex.vert", "../VAS/plainfragment.frag", EShader::plain);
     mShaders[EShader::phong] = new Shader("../VAS/PhongVertex.vert", "../VAS/PhongFragment.frag", EShader::phong);
+
+    if(ts != nullptr)
+        setSurface(ts);
 }
 
 Scene::~Scene()
@@ -24,9 +27,21 @@ void Scene::initializeScene()
 
 void Scene::reset()
 {
-    mBall.setLocation({4.f, 1.f, 0.f});
+    placeObject(&mBall, mDefaultPositions[&mBall]);
     mBall.getPhysicsProperties().velocity = {0.f,0.f,0.f};
 
+    for(auto &obj : mObjects)
+    {
+        if(!dynamic_cast<IndexedTriangleSurface*>(obj))
+        {
+            if(dynamic_cast<RollingBall*>(obj))
+                dynamic_cast<RollingBall*>(obj)->getPhysicsProperties().velocity = QVector3D(0.f,0.f,0.f);
+
+            obj->Activate();
+
+            placeObject(obj, mDefaultPositions[obj]);
+        }
+    }
 }
 
 void Scene::initializeObjects()
@@ -36,8 +51,8 @@ void Scene::initializeObjects()
     mBall.init();
     mLight.init();
 
-    if(mTriangleSurface != nullptr)
-        mObjects.push_back(mTriangleSurface);
+//    if(mTriangleSurface != nullptr)
+//        mObjects.push_back(mTriangleSurface);
 
     for(unsigned int i = 0; i < mObjects.size(); i++)
         mObjects[i]->init();
@@ -63,20 +78,40 @@ void Scene::draw(float deltaTime)
 
     for(auto it = mObjects.begin(); it != mObjects.end(); it++)
     {
-        if((*it)->IsActive())
+        if((*it) != nullptr)
         {
-            glUseProgram(mShaders[(*it)->getShader()]->getID());
-            current = (*it)->getShader();
+            if((*it)->IsActive())
+            {
+                glUseProgram(mShaders[(*it)->getShader()]->getID());
+                current = (*it)->getShader();
 
-            mCamera.render(*mShaders[current]);
+                mCamera.render(*mShaders[current]);
 
-            (*it)->draw(*mShaders[(*it)->getShader()]);
+                (*it)->draw(*mShaders[(*it)->getShader()]);
+            }
         }
+        else
+            qDebug() << "Object nullptr";
     }
 
     if(mLockCameraToBall)
         mCamera.setLocation(mBall.getLocation());
 
+}
+
+void Scene::placeObject(VisualObject *obj, QVector2D loc)
+{
+    if(obj != nullptr && mTriangleSurface != nullptr)
+    {
+        obj->setLocation({loc.x(), loc.y(), 0.f});
+
+        if(dynamic_cast<RollingBall*>(obj))
+            obj->getTransform().location.setZ(mTriangleSurface->heightAtLocation(loc.x(), loc.y()) + 1.f);
+        else
+            obj->getTransform().location.setZ(mTriangleSurface->heightAtLocation(loc.x(), loc.y()));
+
+        mDefaultPositions[obj] = loc;
+    }
 }
 
 void Scene::togglePause()
@@ -90,6 +125,16 @@ void Scene::togglePause()
 bool Scene::isPaused() const
 {
     return mPause;
+}
+
+void Scene::setSurface(IndexedTriangleSurface *surface)
+{
+    if(surface != nullptr)
+    {
+        mTriangleSurface = surface;
+        mObjects.push_back(mTriangleSurface);
+        mTriangleSurface->init();
+    }
 }
 
 Shader *Scene::getShader(EShader type)

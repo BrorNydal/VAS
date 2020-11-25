@@ -8,8 +8,10 @@
 #include "octahedronball.h"
 #include "light.h"
 
-Scene2::Scene2()
+Scene2::Scene2(IndexedTriangleSurface *ts)
+    :   Scene(ts)
 {
+    initializeScene();
 }
 
 void Scene2::draw(float deltaTime)
@@ -28,9 +30,12 @@ void Scene2::draw(float deltaTime)
 
 void Scene2::listObjects()
 {
-    mTriangleSurface = new IndexedTriangleSurface("test_las", "none", 1.f, true);
-    mTriangleSurface->run();
+    //mTriangleSurface = new IndexedTriangleSurface("test_las", "none", 1.f, true);
+    //mTriangleSurface->run();
+    //mTriangleSurface->scaleXY(5.f);
 
-    mBall.setLocation({10.f,10.f,0.f});
+    //location found by running program and printing camera location by pressing 'C'
+    placeObject(&mBall, {400.824f, 840.358f});
+    //mBall.setLocation({500.f, 500.f,0.f});
 }
 

@@ -39,8 +39,10 @@ protected:
     Grid mGrid;
     RollingBall mBall; //Ball to simulate physics and move
 
+    std::map<VisualObject*, QVector2D> mDefaultPositions;
+
 public:
-    Scene();
+    Scene(IndexedTriangleSurface *ts = nullptr);
     ~Scene();
 
     void initializeScene();
@@ -52,8 +54,11 @@ public:
     //Creates and pushes objects to mObjects-vector
     virtual void listObjects() = 0;
 
+    void placeObject(VisualObject *obj, QVector2D loc);
+
     void togglePause();
     bool isPaused() const;
+    void setSurface(IndexedTriangleSurface *surface);
 
     bool hasInitialized() const {return mInitialized;}
     Shader *getShader(EShader type);

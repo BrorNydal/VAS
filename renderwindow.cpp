@@ -8,6 +8,7 @@
 #include <QDebug>
 
 #include <iostream>
+#include "indexedtrianglesurface.h"
 #include "scene1.h"
 #include "scene2.h"
 #include "scene3.h"
@@ -98,9 +99,16 @@ void RenderWindow::init()
     glEnable( GL_BLEND );
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    //mScenes.push_back(new Scene1());
-    //mScenes.push_back(new Scene2());
-    mScenes.push_back(new Scene3());
+    IndexedTriangleSurface *newSurface = new IndexedTriangleSurface("test_las", "none", 1.f, true);
+    newSurface->run();
+
+    Scene1 *s1 = new Scene1();
+    Scene2 *s2 = new Scene2(newSurface);
+    Scene3 *s3 = new Scene3(newSurface);
+
+    mScenes.push_back(s1);
+    mScenes.push_back(s2);
+    mScenes.push_back(s3);
 }
 
 void RenderWindow::nextScene()
@@ -152,13 +160,13 @@ void RenderWindow::render()
     if(!mScenes[mSceneIndex]->isPaused())
     {
         if(mKeyInput[Qt::Key_L])
-            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(0.01f, 0.0f, 0.f);
+            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(0.05f, 0.0f, 0.f);
         else if(mKeyInput[Qt::Key_J])
-            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(-0.01f, 0.0f, 0.f);
+            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(-0.05f, 0.0f, 0.f);
         if(mKeyInput[Qt::Key_I])
-            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(0.0f, 0.01f, 0.f);
+            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(0.0f, 0.05f, 0.f);
         else if(mKeyInput[Qt::Key_K])
-            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(0.0f, -0.01f, 0.f);
+            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(0.0f, -0.05f, 0.f);
     }
 
     mScenes[mSceneIndex]->getCamera().move(QVector3D(deltaX, deltaY, deltaZ));
@@ -312,6 +320,11 @@ void RenderWindow::keyPressEvent(QKeyEvent *event)
     {
         mScenes[mSceneIndex]->reset();
     }
+    if(event->key() == Qt::Key_C)
+    {
+        qDebug() << "Camera location :" << mScenes[mSceneIndex]->getCamera().getLocation();
+    }
+
 
     if(event->key() == Qt::Key_M)
     {

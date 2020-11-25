@@ -55,6 +55,7 @@ public:
     EShader getShader() const {return mShaderType;}
 
     void scale(float factor){mTransform.scale *= factor;}
+    void scaleXY(float factor){mTransform.scale[0]*=factor; mTransform.scale[1]*=factor;}
     void move(QVector3D trans){mTransform.location += trans;}
 
     Vertex getVertex(unsigned int i) {return mVertices[i];}

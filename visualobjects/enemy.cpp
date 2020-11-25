@@ -122,20 +122,30 @@ void Enemy::findPath()
         cp.push_back(QVector3D(getLocation().x(), getLocation().y(), 0.f));
 
         const float radius = 10.f;
-        cp.push_back(mGuardingItems[id[0]]->getLocation() + QVector3D(radius, 0.f, 0.f));
-        cp.push_back(mGuardingItems[id[0]]->getLocation() + QVector3D(0.f, radius, 0.f));
-        cp.push_back(mGuardingItems[id[0]]->getLocation() + QVector3D(-radius, 0.f, 0.f));
-        cp.push_back(mGuardingItems[id[0]]->getLocation() + QVector3D(0.f, -radius, 0.f));
+        QVector3D loc = mGuardingItems[id[0]]->getLocation();
+        loc.setZ(0.f);
+        cp.push_back(loc + QVector3D(radius, 0.f, 0.f));
+        cp.push_back(loc + QVector3D(0.f, radius, 0.f));
+        cp.push_back(loc + QVector3D(-radius, 0.f, 0.f));
+        cp.push_back(loc + QVector3D(0.f, -radius, 0.f));
 
         n = 5;
     }
 
-    //special case: Find random point on map maybe? Or maybe find an item to encircle? (If time, else stand still)
+    //special case: Encircle the position of an inactive item
     else if(n == 0)
     {
-        qDebug() << "TRAVEL";
         cp.push_back(QVector3D(getLocation().x(), getLocation().y(), 0.f));
 
+        const float radius = 10.f;
+        QVector3D loc = mGuardingItems[0]->getLocation();
+        loc.setZ(0.f);
+        cp.push_back(loc + QVector3D(radius, 0.f, 0.f));
+        cp.push_back(loc + QVector3D(0.f, radius, 0.f));
+        cp.push_back(loc + QVector3D(-radius, 0.f, 0.f));
+        cp.push_back(loc + QVector3D(0.f, -radius, 0.f));
+
+        n = 5;
     }
 
     //Using selection-sort: sort items based on which is closest to current enemy location
@@ -164,7 +174,11 @@ void Enemy::findPath()
 
         //for each item, hence n-1 as enemy location occupies the first element
         for(unsigned int i = 0; i < n-1; i++)
-            cp.push_back(mGuardingItems.at(indecies[i])->getLocation());
+        {
+            QVector3D loc = mGuardingItems.at(indecies[i])->getLocation();
+            loc.setZ(0.f);
+            cp.push_back(loc);
+        }
 
     }
 
@@ -195,9 +209,7 @@ void Enemy::findPath()
     //for(auto kntt : k)
     //    qDebug() << "kt" << kntt;
 
-    qDebug() << "PATH ALGO FIN";
     mPath->setNewValues(k, cp, d);
-    qDebug() << "NEW VALUES SET";
 }
 
 void Enemy::patrol()
