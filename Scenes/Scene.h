@@ -16,6 +16,7 @@
 
 
 /*
+ * P - Play / Pause
  * WASD - camera movement.
  * IJKL - player movement.
  * Right Mouse Button enables camera movement.
