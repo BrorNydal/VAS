@@ -159,14 +159,19 @@ void RenderWindow::render()
 
     if(!mScenes[mSceneIndex]->isPaused())
     {
+        Camera *cam = &mScenes[mSceneIndex]->getCamera();
+        QVector3D fwd = cam->getForwardVectorXY();
+        QVector3D rgt = cam->getRightVectorXY();
+        const float ms = 0.05f;
+
         if(mKeyInput[Qt::Key_L])
-            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(0.05f, 0.0f, 0.f);
+            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += rgt * ms;
         else if(mKeyInput[Qt::Key_J])
-            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(-0.05f, 0.0f, 0.f);
+            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += -rgt * ms;
         if(mKeyInput[Qt::Key_I])
-            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(0.0f, 0.05f, 0.f);
+            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += fwd * ms;
         else if(mKeyInput[Qt::Key_K])
-            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += QVector3D(0.0f, -0.05f, 0.f);
+            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += -fwd * ms;
     }
 
     mScenes[mSceneIndex]->getCamera().move(QVector3D(deltaX, deltaY, deltaZ));

@@ -62,6 +62,8 @@ public:
     void pitch(float delta);
     void zoom(float delta);
 
+    QVector2D getForwardVectorXY() const;
+    QVector2D getRightVectorXY() const;
 };
 
 #endif // CAMERA_H

@@ -35,7 +35,7 @@ protected:
 
     //Has scene been initialized
     bool mInitialized = false;
-    bool mPause = true;
+    bool mPause = false;
 
     PhysicsEngine mPhysicsEngine;
 

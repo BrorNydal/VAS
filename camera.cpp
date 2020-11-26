@@ -120,3 +120,13 @@ void Camera::zoom(float delta)
     else if(mOffset > mMaxCameraOffset)
         mOffset = mMaxCameraOffset;
 }
+
+QVector2D Camera::getForwardVectorXY() const
+{
+    return QVector2D(mForward.x(), mForward.y()).normalized();
+}
+
+QVector2D Camera::getRightVectorXY() const
+{
+    return QVector2D(mRight.x(), mRight.y()).normalized();
+}

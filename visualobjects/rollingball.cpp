@@ -11,3 +11,8 @@ PhysicsProperties &RollingBall::getPhysicsProperties()
 {
     return mPhysicsProperties;
 }
+
+void RollingBall::setCamera(Camera *cam)
+{
+
+}
