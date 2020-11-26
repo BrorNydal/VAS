@@ -94,6 +94,16 @@ void Camera::yaw(float delta)
     mTransform.rotation[2] += mRotationSensitivity * delta * -1.f;
 }
 
+void Camera::setYaw(float newYaw)
+{
+    mTransform.rotation[2] = newYaw;
+}
+
+float Camera::getYaw() const
+{
+    return mTransform.rotation[2];
+}
+
 void Camera::pitch(float delta)
 {
     delta *= -1.f;
@@ -112,6 +122,16 @@ void Camera::pitch(float delta)
     mTransform.rotation[0] += delta * mRotationSensitivity;
 }
 
+void Camera::setPitch(float newPitch)
+{
+    mTransform.rotation[0] = newPitch;
+}
+
+float Camera::getPitch() const
+{
+    return mTransform.rotation[0];
+}
+
 void Camera::zoom(float delta)
 {
     mOffset += delta * mCameraZoomScale;
@@ -119,6 +139,16 @@ void Camera::zoom(float delta)
         mOffset = mMinCameraOffset;
     else if(mOffset > mMaxCameraOffset)
         mOffset = mMaxCameraOffset;
+}
+
+void Camera::setOffset(float newOffset)
+{
+    mOffset = newOffset;
+}
+
+float Camera::getOffset() const
+{
+    return mOffset;
 }
 
 QVector2D Camera::getForwardVectorXY() const

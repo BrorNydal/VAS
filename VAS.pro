@@ -71,4 +71,6 @@ DISTFILES += \
     PhongFragment.frag \
     PhongVertex.vert \
     plainfragment.frag \
-    plainvertex.vert
+    plainvertex.vert \
+    terrainfragment.frag \
+    terrainvertex.vert

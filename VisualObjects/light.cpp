@@ -7,8 +7,6 @@ Light::Light()
     mVertices.push_back(Vertex(0.f, 0.f, 0.f, 0.f, 0.f, -1.f));
     mVertices.push_back(Vertex(1.f, 0.f, 0.f, 0.f, 0.f, -1.f));
     mVertices.push_back(Vertex(0.5f, 0.8f, 0.f, 0.f, 0.f, -1.f));
-
-    mLightProperties.direction = QVector3D(0.f,0.f,-1.f);
 }
 
 void Light::draw(Shader &shader)

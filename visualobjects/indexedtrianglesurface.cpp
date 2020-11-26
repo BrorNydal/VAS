@@ -49,6 +49,7 @@ void IndexedTriangleSurface::run()
 void IndexedTriangleSurface::draw(Shader &shader)
 {
     shader.uniform3f("color", 0.f, 0.f, 1.f);
+    shader.uniformf("maxz", mLimit.z.y() - mLimit.z.x());
     VisualObject::draw(shader);
 }
 
@@ -321,9 +322,9 @@ Triangle *IndexedTriangleSurface::getTriangle(float x, float y)
     }
     else
     {
-        qDebug() << "[WARNING] (trianglesurface) gettriangle(x,y) square nullptr.";
-        qDebug() << "square index : " << index;
-        qDebug() << "square vector size :" << mSquares.size();
+        //qDebug() << "[WARNING] (trianglesurface) gettriangle(x,y) square nullptr.";
+        //qDebug() << "square index : " << index;
+        //qDebug() << "square vector size :" << mSquares.size();
         return nullptr;
     }
 }

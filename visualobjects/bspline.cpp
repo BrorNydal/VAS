@@ -150,14 +150,6 @@ void BSplineCurve::createCurve()
     unsigned int first = 0;
     unsigned int second = mVertices.size();
 
-    for(auto cp : b)
-        qDebug() << "cp :" << cp;
-    for(auto kn : t)
-        qDebug() << "knot :" << kn;
-
-    qDebug() << "cp size :" << b.size();
-    qDebug() << "knot size :" << t.size();
-
     while(first < t.size() - 1) {
 
         float delta = t[first];//controlpoints[t[first]].x();
@@ -165,8 +157,6 @@ void BSplineCurve::createCurve()
         while(delta < t[first+1])
         {
             QVector3D v = evaluateBSpline(first, delta);
-            qDebug() << "first :" << first << "tfirst :" << t[first] << "," << "tfirst+1 :" << t[first+1];
-            qDebug() << "bs" << v;
             mVertices.push_back(Vertex(v.x(), v.y(), v.z()));
 
             //Indices

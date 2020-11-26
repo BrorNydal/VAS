@@ -58,9 +58,21 @@ public:
     void setLocation(QVector3D loc);
     QVector3D getLocation() const;
     void move(QVector3D dir);
+
+    //yaw
     void yaw(float delta);
+    void setYaw(float newYaw);
+    float getYaw() const;
+
+    //pitch
     void pitch(float delta);
+    void setPitch(float newPitch);
+    float getPitch() const;
+
+    //offset
     void zoom(float delta);
+    void setOffset(float newOffset);
+    float getOffset() const;
 
     QVector2D getForwardVectorXY() const;
     QVector2D getRightVectorXY() const;

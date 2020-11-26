@@ -67,6 +67,13 @@ void Scene1::listObjects()
    mTriangleSurface->run();
    setSurface(mTriangleSurface);
    placeObject(&mBall, {1.f, 4.f});
+
+   //values found printing values with 'C'
+   mLockCameraToBall = false;
+   mCamera.setLocation(QVector3D(10.f, 4.f, 0.7f));
+   mCamera.setYaw(149.2f);
+   mCamera.setPitch(-12.2f);
+   mCamera.setOffset(14.f);
     //mCamera.setLocation(mTriangleSurface->getVertex(0));
 }
 

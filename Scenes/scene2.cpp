@@ -12,6 +12,7 @@ Scene2::Scene2(IndexedTriangleSurface *ts)
     :   Scene(ts)
 {
     initializeScene();
+
 }
 
 void Scene2::draw(float deltaTime)
@@ -36,6 +37,9 @@ void Scene2::listObjects()
 
     //location found by running program and printing camera location by pressing 'C'
     placeObject(&mBall, {400.824f, 840.358f});
+    mCamera.setYaw(200.f);
+    mCamera.setPitch(-30.f);
+    mCamera.setOffset(50.f);
     //mBall.setLocation({500.f, 500.f,0.f});
 }
 

@@ -6,6 +6,7 @@ Scene::Scene(IndexedTriangleSurface *ts)
 
     mShaders[EShader::plain] = new Shader("../VAS/plainvertex.vert", "../VAS/plainfragment.frag", EShader::plain);
     mShaders[EShader::phong] = new Shader("../VAS/PhongVertex.vert", "../VAS/PhongFragment.frag", EShader::phong);
+    mShaders[EShader::terrain] = new Shader("../VAS/terrainvertex.vert", "../VAS/terrainfragment.frag", EShader::terrain);
 
     if(ts != nullptr)
         setSurface(ts);
@@ -69,12 +70,21 @@ void Scene::draw(float deltaTime)
     mXYZ.draw(*mShaders[current]);
     mGrid.draw(*mShaders[current]);
 
+    current = EShader::terrain;
+    mShaders[current]->use();
+    mCamera.render(*mShaders[current]);
+    mLight.draw(*mShaders[current]);
+    if(mTriangleSurface != nullptr)
+        mTriangleSurface->draw(*mShaders[current]);
+
     current = EShader::phong;
     mShaders[current]->use();
     mCamera.render(*mShaders[current]);
 
     mLight.draw(*mShaders[current]);
     mBall.draw(*mShaders[current]);
+
+
 
     for(auto it = mObjects.begin(); it != mObjects.end(); it++)
     {
@@ -132,7 +142,7 @@ void Scene::setSurface(IndexedTriangleSurface *surface)
     if(surface != nullptr)
     {
         mTriangleSurface = surface;
-        mObjects.push_back(mTriangleSurface);
+        //mObjects.push_back(mTriangleSurface);
         mTriangleSurface->init();
     }
 }

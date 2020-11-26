@@ -104,7 +104,7 @@ void RenderWindow::init()
 
     Scene1 *s1 = new Scene1();
     Scene2 *s2 = new Scene2(newSurface);
-    Scene3 *s3 = new Scene3(newSurface);
+    Scene3 *s3 = new Scene3(newSurface);    
 
     mScenes.push_back(s1);
     mScenes.push_back(s2);
@@ -157,21 +157,49 @@ void RenderWindow::render()
     else if(mKeyInput[Qt::Key_Control])
         deltaZ = -1.f;
 
-    if(!mScenes[mSceneIndex]->isPaused())
+    if(!mScenes[mSceneIndex]->isPaused() && mSceneIndex == 2)
     {
         Camera *cam = &mScenes[mSceneIndex]->getCamera();
         QVector3D fwd = cam->getForwardVectorXY();
         QVector3D rgt = cam->getRightVectorXY();
-        const float ms = 0.05f;
+        const float ms = 0.02f;
+        const float maxms = 0.5f;
+
+        QVector3D &vel = mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity;
+
+        if(mKeyInput[Qt::Key_I])
+        {
+            if((vel + fwd * ms).length() < maxms || (vel + fwd * ms).length() < vel.length())
+            {
+                qDebug() << "f";
+                vel += fwd * ms;
+            }
+        }
+        else if(mKeyInput[Qt::Key_K])
+        {
+            if((vel + -fwd*ms).length() < maxms || (vel + -fwd*ms).length() < vel.length())
+            {
+                qDebug() << "b";
+                vel += -fwd * ms;
+            }
+        }
 
         if(mKeyInput[Qt::Key_L])
-            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += rgt * ms;
+        {
+            if((vel + rgt*ms).length() < maxms || (vel + rgt*ms).length() < vel.length())
+            {
+                qDebug() << "r";
+                vel += rgt * ms;
+            }
+        }
         else if(mKeyInput[Qt::Key_J])
-            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += -rgt * ms;
-        if(mKeyInput[Qt::Key_I])
-            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += fwd * ms;
-        else if(mKeyInput[Qt::Key_K])
-            mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity += -fwd * ms;
+        {
+            if((vel + -rgt*ms).length() < maxms || (vel + -rgt*ms).length() < vel.length())
+            {
+                qDebug() << "l";
+                vel += -rgt * ms;
+            }
+        }
     }
 
     mScenes[mSceneIndex]->getCamera().move(QVector3D(deltaX, deltaY, deltaZ));
@@ -328,6 +356,9 @@ void RenderWindow::keyPressEvent(QKeyEvent *event)
     if(event->key() == Qt::Key_C)
     {
         qDebug() << "Camera location :" << mScenes[mSceneIndex]->getCamera().getLocation();
+        qDebug() << "Camera yaw      :" << mScenes[mSceneIndex]->getCamera().getYaw();
+        qDebug() << "Camera pitch    :" << mScenes[mSceneIndex]->getCamera().getPitch();
+        qDebug() << "Camera offset   :" << mScenes[mSceneIndex]->getCamera().getOffset();
     }
 
 

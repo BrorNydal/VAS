@@ -8,7 +8,7 @@
 class Scene2 : public Scene
 {
 protected:
-
+    unsigned int mLerpVectorIndex = 0;
 public:
     Scene2(IndexedTriangleSurface *ts = nullptr);
 
@@ -17,7 +17,6 @@ public:
     virtual void listObjects() override;
 
 protected:
-    unsigned int mLerpVectorIndex = 0;
 
 };
 

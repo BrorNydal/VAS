@@ -203,5 +203,9 @@ void Scene3::listObjects()
     mPhysicsObjects.push_back(p0);
 
     placeObject(&mBall, {400.824f, 840.358f});
+
+    mCamera.setYaw(200.f);
+    mCamera.setPitch(-30.f);
+    mCamera.setOffset(50.f);
     //mPhysicsObjects.push_back(&mBall);
 }

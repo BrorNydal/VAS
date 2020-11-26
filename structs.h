@@ -6,7 +6,8 @@
 
 enum class EShader {
     plain,
-    phong
+    phong,
+    terrain
 };
 
 struct Triangle {
@@ -29,7 +30,7 @@ struct Sphere {
 
 //simple direction light
 struct LightProperties {
-    LightProperties(float a = 0.06f, float d = 0.7f, float s = 0.3f){
+    LightProperties(float a = 0.09f, float d = 0.8f, float s = 0.6f){
         for(unsigned int i = 0; i < 3; i++)
         {
             ambient[i] = a;
@@ -38,7 +39,7 @@ struct LightProperties {
         }
     }
 
-    QVector3D direction{0.f,0.f,-1.f};
+    QVector3D direction{0.f,-0.5f,-0.7f};
     QVector3D ambient {0.2f,0.2f,0.2f};
     QVector3D diffuse {0.3f,0.3f,0.3f};
     QVector3D specular{0.2f,0.2f,0.2f};
