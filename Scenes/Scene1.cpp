@@ -3,12 +3,11 @@
 #include "xyz.h"
 #include "grid.h"
 #include "light.h"
-#include "beziercurve.h"
 #include "octahedronball.h"
 #include "bspline.h"
 #include <QDebug>
 
-Scene1::Scene1(IndexedTriangleSurface *ts)
+Scene1::Scene1(TriangleSurface *ts)
     :   Scene(ts)
 {
     initializeScene();
@@ -26,7 +25,7 @@ void Scene1::draw(float deltaTime)
         return;
 
     mBall.getTransform().location.setZ(mTriangleSurface->heightAtLocation(mBall.getLocation().x(), mBall.getLocation().y()) + mBall.getRadius());
-    mPhysicsEngine.ballMovement(deltaTime, mBall.getTransform(), mBall.getPhysicsProperties(), mTriangleSurface->getCurrentTriangle(mBall.getLocation().x(), mBall.getLocation().y()).mSurfaceNormal);
+    mPhysicsEngine.ballMovement(deltaTime, mBall.getTransform(), mBall.getPhysicsProperties(), mTriangleSurface->getCurrentTriangle().mSurfaceNormal);
 
 }
 
@@ -63,7 +62,7 @@ void Scene1::listObjects()
 
 //    mObjects.push_back(new BSplineCurve(knots2, cp2, 3));
 
-   mTriangleSurface = new IndexedTriangleSurface("vertex_del1", "index_del1", 1.f);
+   mTriangleSurface = new TriangleSurface("vertex_del1", "index_del1", 1.f);
    mTriangleSurface->run();
    setSurface(mTriangleSurface);
    placeObject(&mBall, {1.f, 4.f});

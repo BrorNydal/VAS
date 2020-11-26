@@ -18,12 +18,16 @@ protected:
     std::vector<unsigned int> mIndices;
 
     Transform mTransform;
+
+    //drawing buffers
     Buffers mBuffers;
 
     GLenum mDrawMode = GL_TRIANGLES;
     bool mDrawArrays = false;
     EShader mShaderType{EShader::phong};
 
+    //While true: rendered and is active through update each frame.
+    //While false: is not rendered and will not be updated each frame.
     bool mActive{true};
 
 public:
@@ -39,7 +43,13 @@ public:
     bool IsActive() const {return mActive;}
 
     virtual void init(); //Skal bare ha et parameter, matrix uniform
-    virtual void draw(Shader &shader);    
+
+    /**
+     * Renders this object using given shader.
+     * @param shader.
+     */
+    virtual void draw(Shader &shader);
+
 
     void setHeight(float h) {mTransform.location.setZ(h);}
     void setLocation(QVector3D loc){mTransform.location = loc;}
@@ -62,6 +72,15 @@ public:
     unsigned int getVertexCount() const {return mVertices.size();}
 
 protected:
+    /**
+     * Initializes buffers.
+     * @param indexData pointer to first element in indexvector.
+     * @param vertexData pointer to first element in vertexvector.
+     * @param indexCount indexvector size.
+     * @param vertexCount vertexvector size.
+     * @param buffer a struct including vao etc..
+     * @param drawing if the vertices can be changed dynamically.
+     */
     void initializeBuffers_impl(unsigned int *indexData, Vertex *vertexData, unsigned int indexCount, unsigned int vertexCount,
                                 Buffers &buffer, GLenum drawing = GL_STATIC_DRAW);
 };

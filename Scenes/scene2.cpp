@@ -1,14 +1,12 @@
 #include "scene2.h"
-#include "mymathfunctions.h"
 
 #include "indexedtrianglesurface.h"
 #include "xyz.h"
 #include "grid.h"
-#include "beziercurve.h"
 #include "octahedronball.h"
 #include "light.h"
 
-Scene2::Scene2(IndexedTriangleSurface *ts)
+Scene2::Scene2(TriangleSurface *ts)
     :   Scene(ts)
 {
     initializeScene();

@@ -18,6 +18,12 @@ public:
 
     virtual void draw(Shader &shader) override;
 
+    /**
+     * Sets new values for bspline and creates curve.
+     * @param knots
+     * @param controlpoints
+     * @param degree
+     */
     void setNewValues(std::vector<float> knots, std::vector<QVector3D> controlpoints, int degree = 2);
     void createCurve();
 

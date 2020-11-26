@@ -45,4 +45,78 @@ static QVector3D CalculateTriangleNormal(const QVector3D &v1, const QVector3D &v
     return QVector3D::crossProduct(v2 - v1, v3 - v1);
 }
 
+struct MySortFunctions
+{
+    template<class T>
+    static void swap(T *xp, T *yp)
+    {
+        T temp = *xp;
+        *xp = *yp;
+        *yp = temp;
+    }
+
+    template<class T>
+    static void selectionSort(T arr[], unsigned int n)
+    {
+        unsigned int min_idx;
+
+        // One by one move boundary of unsorted subarray
+        for (unsigned int i = 0; i < n-1; i++)
+        {
+            // Find the minimum element in unsorted array
+            min_idx = i;
+            for (unsigned int j = i+1; j < n; j++)
+            {
+                if (arr[j] < arr[min_idx])
+                    min_idx = j;
+            }
+
+            // Swap the found minimum element with the first element
+            swap(&arr[min_idx], &arr[i]);
+        }
+    }
+
+    template<class T>
+    static void selectionSort(T arr[], unsigned int indxArr[], unsigned int n)
+    {
+        unsigned int min_idx;
+
+        // One by one move boundary of unsorted subarray
+        for (unsigned int i = 0; i < n-1; i++)
+        {
+            // Find the minimum element in unsorted array
+            min_idx = i;
+
+            for (unsigned int j = i+1; j < n; j++)
+            {
+                if (arr[j] < arr[min_idx])
+                    min_idx = j;
+            }
+
+            // Swap the found minimum element with the first element
+            swap<T>(&arr[min_idx], &arr[i]);
+            // Do the samefor the index-array
+            swap(&indxArr[min_idx], &indxArr[i]);
+        }
+    }
+};
+
+struct MyMathFunctions
+{
+    static QVector3D average3DVector(std::vector<QVector3D> vs)
+    {
+        QVector3D averageVector;
+
+        for(unsigned int i = 0; i < vs.size(); i++)
+            averageVector = averageVector + vs[i];
+
+        return averageVector/ vs.size();
+    }
+
+    static bool floatComparison(float a, float b, float accuracy)
+    {
+        return std::fabs(a - b) < accuracy;
+    }
+};
+
 #endif // STATICFUNCTIONS_H

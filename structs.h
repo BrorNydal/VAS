@@ -10,6 +10,7 @@ enum class EShader {
     terrain
 };
 
+//Triangle with neighbour information available
 struct Triangle {
     int mNeighbours[3] = {-1,-1,-1};
     int mIndices[3] =    {-1, -1, -1};
@@ -18,6 +19,7 @@ struct Triangle {
     float mSurfaceArea{1.f};
 };
 
+//a square consisting of two triangles, and a boolian saying if object is on lower or upper triangle
 struct Square {
     bool onUpper = false;
     Triangle upper;
@@ -45,11 +47,12 @@ struct LightProperties {
     QVector3D specular{0.2f,0.2f,0.2f};
 };
 
+//struct holding all necessary information for a ball to roll
 struct PhysicsProperties {
     QVector3D acceleration{0.f, 0.f, 0.f}; //increase in velocity per second
-    QVector3D velocity{0.f, 0.f, 0.f}; //change of location
+    QVector3D velocity{0.f, 0.f, 0.f};      //change of location
     float mass{1.f};
-    bool physic{true};
+    bool physic{true}; //if false, don't apply physics
 };
 
 struct Buffers {
@@ -103,6 +106,7 @@ struct SurfaceLimits {
     }
 };
 
+//Return value of a collision-test
 struct CollisionResult {
     bool collision;
     float distance;

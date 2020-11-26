@@ -2,7 +2,6 @@
 
 #include "globalconstants.h"
 #include "staticfunctions.h"
-#include "mymathfunctions.h"
 
 #include <fstream>
 #include <QVector2D>
@@ -12,7 +11,7 @@
 //fabs
 #include <math.h>
 
-IndexedTriangleSurface::IndexedTriangleSurface(std::string data, std::string index, float scale, bool las)
+TriangleSurface::TriangleSurface(std::string data, std::string index, float scale, bool las)
     :   mVertexFile(data), mIndexFile(index), mScale(scale), mIsLasFile(las), mObjectTriangleIndex(0)
 {
     //mTag = "triangle surface";
@@ -20,24 +19,23 @@ IndexedTriangleSurface::IndexedTriangleSurface(std::string data, std::string ind
 
 }
 
-void IndexedTriangleSurface::run()
+void TriangleSurface::run()
 {
     if(mIsLasFile)
     {
         readConvertedLasFile(mVertexFile);
         //calculateSurfaceNormal();
-        calculateVertexNormal();
+        calculateVertexNormals();
     }
     else
     {
-        readCutsomFile(mVertexFile);
+        readCutsomVertexFile(mVertexFile);
 
         if(mIndexFile != "none")
         {
             readCustomIndexFile(mIndexFile);
-            calculateSurfaceNormal();
-            calculateVertexNormal();
-            writeFile();
+            calculateSurfaceNormals();
+            calculateVertexNormals();
         }
         else
         {
@@ -46,7 +44,7 @@ void IndexedTriangleSurface::run()
     }
 }
 
-void IndexedTriangleSurface::draw(Shader &shader)
+void TriangleSurface::draw(Shader &shader)
 {
     shader.uniform3f("color", 0.f, 0.f, 1.f);
     shader.uniformf("maxz", mLimit.z.y() - mLimit.z.x());
@@ -54,18 +52,18 @@ void IndexedTriangleSurface::draw(Shader &shader)
 }
 
 
-void IndexedTriangleSurface::printDebugInformation()
+void TriangleSurface::printDebugInformation()
 {
 
 }
 
-void IndexedTriangleSurface::lasOptions(bool las, QVector2D triangleSize)
+void TriangleSurface::lasOptions(bool las, QVector2D triangleSize)
 {
     mIsLasFile = las;
     mResolution = triangleSize;
 }
 
-SurfaceLimits IndexedTriangleSurface::findSurfaceLimit(std::string filename)
+SurfaceLimits TriangleSurface::findSurfaceLimit(std::string filename)
 {
     std::ifstream file(Path::Datasets + filename + ".txt");
 
@@ -106,7 +104,7 @@ SurfaceLimits IndexedTriangleSurface::findSurfaceLimit(std::string filename)
     return mLimit;
 }
 
-void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
+void TriangleSurface::readConvertedLasFile(std::string filename)
 {
     std::ifstream file(Path::Datasets + filename + ".txt");
 
@@ -177,7 +175,7 @@ void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
 
             if(v1 >= 0.f && v1 <= mTotalSize.x() && v2 >= 0.f && v2 <= mTotalSize.y())
             {
-                QPoint square = getSquare(v1, v2);
+                QPoint square = getBottomLeftVertaxAtSquare(v1, v2);
 
                 //give data to each vertex in square
 
@@ -237,7 +235,7 @@ void IndexedTriangleSurface::readConvertedLasFile(std::string filename)
     assertIndices();
 }
 
-void IndexedTriangleSurface::assertIndices()
+void TriangleSurface::assertIndices()
 {
     unsigned int lti[3];
     unsigned int uti[3];
@@ -296,7 +294,7 @@ void IndexedTriangleSurface::assertIndices()
     }
 }
 
-QPoint IndexedTriangleSurface::getSquare(float x, float y) const
+QPoint TriangleSurface::getBottomLeftVertaxAtSquare(float x, float y) const
 {
     //Where we are relative to the terrain
     float resultX = x;// + mTotalSize.x() / 2.f;
@@ -309,9 +307,9 @@ QPoint IndexedTriangleSurface::getSquare(float x, float y) const
     return QPoint(gridX, gridY);
 }
 
-Triangle *IndexedTriangleSurface::getTriangle(float x, float y)
+Triangle *TriangleSurface::getTriangle(float x, float y)
 {
-    int index = vertexIndex(getSquare(x, y));
+    int index = vertexIndex(getBottomLeftVertaxAtSquare(x, y));
 
     if(index >= 0 && (unsigned int)index < mSquares.size())
     {
@@ -329,7 +327,7 @@ Triangle *IndexedTriangleSurface::getTriangle(float x, float y)
     }
 }
 
-void IndexedTriangleSurface::readCutsomFile(std::string filename)
+void TriangleSurface::readCutsomVertexFile(std::string filename)
 {
     std::ifstream file(Path::Datasets + filename + ".txt");
 
@@ -364,7 +362,7 @@ void IndexedTriangleSurface::readCutsomFile(std::string filename)
     qDebug() << "surface size :" << mVertices.size();
 }
 
-void IndexedTriangleSurface::readCustomIndexFile(std::string filename)
+void TriangleSurface::readCustomIndexFile(std::string filename)
 {
     std::ifstream file(Path::Datasets + filename + ".txt");
 
@@ -408,51 +406,9 @@ void IndexedTriangleSurface::readCustomIndexFile(std::string filename)
     }
 }
 
-void IndexedTriangleSurface::writeFile()
-{
-    std::string vertexFileName = "Oppg_5_2_11_VertexData";
-    std::ofstream vertexFile(Path::Datasets + vertexFileName + ".txt");
 
-    if(vertexFile.is_open())
-    {
-        //Creates new file or overrides an existing file with same path
-        for(unsigned int i = 0; i < mVertices.size(); i++)
-        {
-            vertexFile << mVertices[i] << "\n";
-        }
-    }else{
-        qDebug() << "(indexedtrianglesurface) Can't write data file!";
-    }
 
-    vertexFile.close();
-
-    std::string indexFileName = "Oppg_5_2_11_IndexData";
-    std::ofstream indexFile(Path::Datasets + indexFileName + ".txt");
-
-    if(indexFile.is_open())
-    {
-        unsigned triangleIndex = 0;
-
-        //Creates new file or overrides an existing file with same path
-        for(unsigned int i = 0; i < mIndices.size(); i+=3)
-        {
-            indexFile << mIndices[i] << " " << mIndices[i+1] << " " << mIndices[i+2] << "   ";
-            indexFile << mTriangles[triangleIndex].mNeighbours[0] << " " <<
-                         mTriangles[triangleIndex].mNeighbours[1] << " " <<
-                         mTriangles[triangleIndex].mNeighbours[2];
-
-            indexFile << "\n";
-            triangleIndex++;
-        }
-    }else
-    {
-        qDebug() << "(indexedtrianglesurface) Can't write index file!";
-    }
-
-    vertexFile.close();
-}
-
-float IndexedTriangleSurface::heightAtLocation(float x, float y)
+float TriangleSurface::heightAtLocation(float x, float y)
 {
     if(!mIsLasFile)
         return barycentricHeightSearch(QVector2D(x, y));
@@ -536,7 +492,7 @@ float IndexedTriangleSurface::heightAtLocation(float x, float y)
     return result;
 }
 
-float IndexedTriangleSurface::barycentricHeightSearch(QVector2D loc)
+float TriangleSurface::barycentricHeightSearch(QVector2D loc)
 {
     QVector3D t[3];
 
@@ -545,7 +501,7 @@ float IndexedTriangleSurface::barycentricHeightSearch(QVector2D loc)
     for(unsigned int i = 0; i < 3; i++)
     {
         //qDebug() << "Triangle" << i << getCurrentTriangle().mPosition[i];
-        t[i] = mVertices[ getCurrentTriangle(loc.x(), loc.y()).mIndices[i] ];
+        t[i] = mVertices[ getCurrentTriangle().mIndices[i] ];
     }
 
     //qDebug() << "LOC :" << loc;
@@ -567,10 +523,10 @@ float IndexedTriangleSurface::barycentricHeightSearch(QVector2D loc)
         {
             if(bc[i] < 0.f)
             {
-                if(getCurrentTriangle(loc.x(), loc.y()).mNeighbours[i] != -1)
+                if(getCurrentTriangle().mNeighbours[i] != -1)
                 {
                     //qDebug() << "OPP " << i << "," << getCurrentTriangle().mAdjacentTriangles[i];
-                    mObjectTriangleIndex = getCurrentTriangle(loc.x(), loc.y()).mNeighbours[i];
+                    mObjectTriangleIndex = getCurrentTriangle().mNeighbours[i];
                     break;
                 }
                 else
@@ -585,37 +541,37 @@ float IndexedTriangleSurface::barycentricHeightSearch(QVector2D loc)
     }
 }
 
-const Triangle &IndexedTriangleSurface::getCurrentTriangle(float x, float y) const
+const Triangle &TriangleSurface::getCurrentTriangle() const
 {
     return mTriangles[mObjectTriangleIndex];
 }
 
-const Square &IndexedTriangleSurface::getCurrentSquare(float x, float y) const
+const Square &TriangleSurface::getCurrentSquare(float x, float y) const
 {
-    return mSquares[vertexIndex(getSquare(x, y))];
+    return mSquares[vertexIndex(getBottomLeftVertaxAtSquare(x, y))];
 }
 
-unsigned IndexedTriangleSurface::vertexIndex(QPoint point) const
+unsigned TriangleSurface::vertexIndex(QPoint point) const
 {
     return vertexIndex(point.x(), point.y());
 }
 
-unsigned IndexedTriangleSurface::vertexIndex(unsigned int x, unsigned int y) const
+unsigned TriangleSurface::vertexIndex(unsigned int x, unsigned int y) const
 {
     return row(y) + col(x);
 }
 
-unsigned int IndexedTriangleSurface::row(unsigned int i) const
+unsigned int TriangleSurface::row(unsigned int i) const
 {
     return i * (mCol+1);
 }
 
-unsigned int IndexedTriangleSurface::col(unsigned int i) const
+unsigned int TriangleSurface::col(unsigned int i) const
 {
     return i;
 }
 
-void IndexedTriangleSurface::calculateSurfaceNormal()
+void TriangleSurface::calculateSurfaceNormals()
 {
     for(auto it = mTriangles.begin(); it != mTriangles.end(); it++)
     {
@@ -640,7 +596,7 @@ void IndexedTriangleSurface::calculateSurfaceNormal()
     }
 }
 
-void IndexedTriangleSurface::calculateVertexNormal()
+void TriangleSurface::calculateVertexNormals()
 {
     //For each vertex we calculate average normals of surrounding surfaces
     for(unsigned int i = 0; i < mVertices.size(); i++)
@@ -654,7 +610,7 @@ void IndexedTriangleSurface::calculateVertexNormal()
             //And atleast one triangle will have an index equal to i
             for(unsigned int k = 0; k < 3; k++)
             {
-                if(mTriangles[j].mIndices[k] == i)
+                if(mTriangles[j].mIndices[k] == (int)i)
                 {
                     //When we find an index equal to i, we add it to the list of surface normals for further calculation
                     surfaceNormals.push_back(mTriangles[j].mSurfaceNormal);

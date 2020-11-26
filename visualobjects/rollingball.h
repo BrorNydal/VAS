@@ -7,7 +7,7 @@ class Camera;
 
 class RollingBall : public OctahedronBall
 {
-private:
+private:    
     PhysicsProperties mPhysicsProperties;
     Camera *mCamera;
 

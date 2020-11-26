@@ -99,7 +99,7 @@ void RenderWindow::init()
     glEnable( GL_BLEND );
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    IndexedTriangleSurface *newSurface = new IndexedTriangleSurface("test_las", "none", 1.f, true);
+    TriangleSurface *newSurface = new TriangleSurface("test_las", "none", 1.f, true);
     newSurface->run();
 
     Scene1 *s1 = new Scene1();

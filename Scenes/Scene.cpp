@@ -1,6 +1,6 @@
 #include "scene.h"
 
-Scene::Scene(IndexedTriangleSurface *ts)
+Scene::Scene(TriangleSurface *ts)
 {
     initializeOpenGLFunctions();
 
@@ -33,7 +33,7 @@ void Scene::reset()
 
     for(auto &obj : mObjects)
     {
-        if(!dynamic_cast<IndexedTriangleSurface*>(obj))
+        if(!dynamic_cast<TriangleSurface*>(obj))
         {
             if(dynamic_cast<RollingBall*>(obj))
                 dynamic_cast<RollingBall*>(obj)->getPhysicsProperties().velocity = QVector3D(0.f,0.f,0.f);
@@ -83,8 +83,6 @@ void Scene::draw(float deltaTime)
 
     mLight.draw(*mShaders[current]);
     mBall.draw(*mShaders[current]);
-
-
 
     for(auto it = mObjects.begin(); it != mObjects.end(); it++)
     {
@@ -137,7 +135,7 @@ bool Scene::isPaused() const
     return mPause;
 }
 
-void Scene::setSurface(IndexedTriangleSurface *surface)
+void Scene::setSurface(TriangleSurface *surface)
 {
     if(surface != nullptr)
     {

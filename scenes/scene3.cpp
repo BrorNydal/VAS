@@ -3,7 +3,7 @@
 #include "obj.h"
 #include "structs.h"
 
-Scene3::Scene3(IndexedTriangleSurface *ts)
+Scene3::Scene3(TriangleSurface *ts)
     :   Scene(ts)
 {
     initializeScene();

@@ -11,7 +11,7 @@ protected:
     std::vector<RollingBall*> mPhysicsObjects;
 
 public:
-    Scene2(IndexedTriangleSurface *ts = nullptr);
+    Scene2(TriangleSurface *ts = nullptr);
 
     virtual void draw(float deltaTime) override;
 

@@ -11,13 +11,11 @@ INCLUDEPATH += \
 
 SOURCES += main.cpp \
     camera.cpp \
-    mymathfunctions.cpp \
     physicsengine.cpp \
     scenes/scene.cpp \
     scenes/scene1.cpp \
     scenes/scene2.cpp \
     scenes/scene3.cpp \
-    visualobjects/beziercurve.cpp \
     visualobjects/bspline.cpp \
     visualobjects/enemy.cpp \
     visualobjects/grid.cpp \
@@ -32,12 +30,10 @@ SOURCES += main.cpp \
     renderwindow.cpp \
     shader.cpp \
     mainwindow.cpp \
-    triangle.cpp \
     vertex.cpp
 
 HEADERS += \
     camera.h \
-    mymathfunctions.h \
     physicsengine.h \
     scenes/scene.h \
     scenes/scene1.h \
@@ -45,7 +41,6 @@ HEADERS += \
     scenes/scene3.h \
     staticfunctions.h \
     structs.h \
-    visualobjects/beziercurve.h \
     visualobjects/bspline.h \
     visualobjects/enemy.h \
     visualobjects/grid.h \
@@ -61,7 +56,6 @@ HEADERS += \
     renderwindow.h \
     shader.h \
     mainwindow.h \
-    triangle.h \
     vertex.h
 
 FORMS += \

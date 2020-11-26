@@ -39,7 +39,7 @@ protected:
 
     PhysicsEngine mPhysicsEngine;
 
-    IndexedTriangleSurface *mTriangleSurface = nullptr;
+    TriangleSurface *mTriangleSurface = nullptr;
     Camera mCamera;
     bool mLockCameraToBall = true; //When true, camera follows ball, when false move camera with WASD + shift/ctrl
     Light mLight; //Directional
@@ -50,7 +50,7 @@ protected:
     std::map<VisualObject*, QVector2D> mDefaultPositions;
 
 public:
-    Scene(IndexedTriangleSurface *ts = nullptr);
+    Scene(TriangleSurface *ts = nullptr);
     ~Scene();
 
     void initializeScene();
@@ -66,7 +66,7 @@ public:
 
     void togglePause();
     bool isPaused() const;
-    void setSurface(IndexedTriangleSurface *surface);
+    void setSurface(TriangleSurface *surface);
 
     bool hasInitialized() const {return mInitialized;}
     Shader *getShader(EShader type);

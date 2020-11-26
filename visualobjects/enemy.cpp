@@ -1,8 +1,7 @@
 #include "enemy.h"
 
 #include "item.h"
-
-#include "mymathfunctions.h"
+#include "staticfunctions.h"
 
 
 Enemy::Enemy(BSplineCurve *path, RollingBall *player)
