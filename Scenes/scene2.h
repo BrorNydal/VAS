@@ -3,7 +3,11 @@
 
 #include "scene.h"
 
+//KandidatNr: 6003
 //Folder task part 2
+//read las file and import height data
+//Using height data create a terrain
+//Simulate one or more rolling balls on the terrain
 
 class Scene2 : public Scene
 {
