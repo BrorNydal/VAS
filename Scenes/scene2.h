@@ -8,7 +8,8 @@
 class Scene2 : public Scene
 {
 protected:
-    unsigned int mLerpVectorIndex = 0;
+    std::vector<RollingBall*> mPhysicsObjects;
+
 public:
     Scene2(IndexedTriangleSurface *ts = nullptr);
 

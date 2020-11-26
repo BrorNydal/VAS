@@ -11,7 +11,6 @@ private:
     std::vector<Enemy*> mEnemies;
     std::vector<RollingBall*> mPhysicsObjects;
     std::vector<Item*> mItems;
-    std::map<RollingBall*, QVector3D> mDefaultPositions;
 
 
 public:

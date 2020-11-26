@@ -43,12 +43,12 @@ class Enemy : public OBJ
     BSplineCurve *mPath;
     unsigned int mPathIndex{ 0 };
     float mPathDelta{ 0.f };
-    float mVelocity{0.2f};
+    float mVelocity{1.f};
 
     std::vector<Item*> mGuardingItems;
     RollingBall *mPlayer = nullptr;
 
-    float mDetectionRadius{30.f};
+    float mDetectionRadius{50.f};
 
     NPC_State mState = NPC_State::PATROL;
 

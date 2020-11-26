@@ -46,7 +46,6 @@ CollisionResult PhysicsEngine::CheckCollision(const Sphere &s1, Transform &t1, c
     if(dist < s1.radius + s2.radius)
     {
         result.collision = true;
-        qDebug() << "(physicsengine) collision!";
     }
     else
         result.collision = false;
@@ -60,7 +59,6 @@ void PhysicsEngine::handleCollision(const Sphere &s1, PhysicsProperties &pp1, Tr
     {
         QVector3D to2 = (t2.location - t1.location);
         float dist = to2.length() - s1.radius - s2.radius;
-        qDebug() << "Distance :" << dist;
 
         to2.normalize();
         QVector3D to1 = to2 * -1.f;
@@ -81,8 +79,6 @@ void PhysicsEngine::handleCollision(const Sphere &s1, PhysicsProperties &pp1, Tr
 
             float angle1 = acosf((v1.x() * to1.x() + v1.y() * to1.y()) / (sqrtf(v1.x() * v1.x() + v1.y() * v1.y()) * sqrtf(to1.x() * to1.x() + to1.y() * to1.y())));
 
-            qDebug() << "Angle :" << angle1;
-
             QMatrix4x4 yawMat;
             yawMat.setToIdentity();
 
@@ -98,8 +94,6 @@ void PhysicsEngine::handleCollision(const Sphere &s1, PhysicsProperties &pp1, Tr
             QVector3D v1 = pp2.velocity.normalized();
 
             float angle1 = acosf((v1.x() * to2.x() + v1.y() * to2.y()) / (sqrtf(v1.x() * v1.x() + v1.y() * v1.y()) * sqrtf(to2.x() * to2.x() + to2.y() * to2.y())));
-
-            qDebug() << "Angle :" << angle1;
 
             QMatrix4x4 yawMat;
             yawMat.setToIdentity();

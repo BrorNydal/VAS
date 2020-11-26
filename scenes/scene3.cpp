@@ -85,7 +85,7 @@ void Scene3::draw(float deltaTime)
 
         if(collision.collision)
         {
-            mPhysicsEngine.handleCollision(Sphere(), b->getPhysicsProperties(), b->getTransform(), Sphere(), enemy->getPhysicsProperties(), enemy->getTransform());
+            reset();
         }
 
         if(enemy->getDetectionRadius() >= collision.distance)
@@ -99,7 +99,22 @@ void Scene3::draw(float deltaTime)
         collision = mPhysicsEngine.CheckCollision(Sphere(), b->getTransform(), Sphere(), item->getTransform());
 
         if(collision.collision == true)
+        {
             item->Deactivate();
+
+            bool allTaken = true;
+            for(auto item : mItems)
+            {
+                if(item->IsActive())
+                {
+                    allTaken = false;
+                    break;
+                }
+            }
+
+            if(allTaken)
+                reset();
+        }
     }
 
     for(auto &ball : mPhysicsObjects)
@@ -202,10 +217,50 @@ void Scene3::listObjects()
     mObjects.push_back(p0);
     mPhysicsObjects.push_back(p0);
 
+    RollingBall *p1 = new RollingBall();
+    placeObject(p1, {420.f, 910.f});
+    mObjects.push_back(p1);
+    mPhysicsObjects.push_back(p1);
+
+    RollingBall *p2 = new RollingBall();
+    placeObject(p2, {410.f, 860.f});
+    mObjects.push_back(p2);
+    mPhysicsObjects.push_back(p2);
+
+    RollingBall *p3 = new RollingBall();
+    placeObject(p3, {390.f, 860.f});
+    mObjects.push_back(p3);
+    mPhysicsObjects.push_back(p3);
+
+    RollingBall *p4 = new RollingBall();
+    placeObject(p4, {450.f, 830.f});
+    mObjects.push_back(p4);
+    mPhysicsObjects.push_back(p4);
+
+    RollingBall *p5 = new RollingBall();
+    placeObject(p5, {843.527, 995.542});
+    mObjects.push_back(p5);
+    mPhysicsObjects.push_back(p5);
+
+    RollingBall *p6 = new RollingBall();
+    placeObject(p6, {797.199, 875.6});
+    mObjects.push_back(p6);
+    mPhysicsObjects.push_back(p6);
+
+    RollingBall *p7 = new RollingBall();
+    placeObject(p7, {712.546, 1067.93});
+    mObjects.push_back(p7);
+    mPhysicsObjects.push_back(p7);
+
+    RollingBall *p8 = new RollingBall();
+    placeObject(p8, {832.278, 1100.24});
+    mObjects.push_back(p8);
+    mPhysicsObjects.push_back(p8);
+
     placeObject(&mBall, {400.824f, 840.358f});
 
-    mCamera.setYaw(200.f);
-    mCamera.setPitch(-30.f);
-    mCamera.setOffset(50.f);
+    mCamera.setYaw(190.8f);
+    mCamera.setPitch(-28.f);
+    mCamera.setOffset(93.f);
     //mPhysicsObjects.push_back(&mBall);
 }

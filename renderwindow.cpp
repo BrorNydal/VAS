@@ -162,43 +162,31 @@ void RenderWindow::render()
         Camera *cam = &mScenes[mSceneIndex]->getCamera();
         QVector3D fwd = cam->getForwardVectorXY();
         QVector3D rgt = cam->getRightVectorXY();
-        const float ms = 0.02f;
-        const float maxms = 0.5f;
+        const float ms = 0.03f;
+        const float maxms = 1.f;
 
         QVector3D &vel = mScenes[mSceneIndex]->getBall().getPhysicsProperties().velocity;
 
         if(mKeyInput[Qt::Key_I])
         {
-            if((vel + fwd * ms).length() < maxms || (vel + fwd * ms).length() < vel.length())
-            {
-                qDebug() << "f";
+            if((vel + fwd * ms).length() < maxms || (vel + fwd * ms).length() <= vel.length())
                 vel += fwd * ms;
-            }
         }
         else if(mKeyInput[Qt::Key_K])
         {
-            if((vel + -fwd*ms).length() < maxms || (vel + -fwd*ms).length() < vel.length())
-            {
-                qDebug() << "b";
+            if((vel + -fwd*ms).length() < maxms || (vel + -fwd*ms).length() <= vel.length())
                 vel += -fwd * ms;
-            }
         }
 
         if(mKeyInput[Qt::Key_L])
         {
-            if((vel + rgt*ms).length() < maxms || (vel + rgt*ms).length() < vel.length())
-            {
-                qDebug() << "r";
+            if((vel + rgt*ms).length() < maxms || (vel + rgt*ms).length() <= vel.length())
                 vel += rgt * ms;
-            }
         }
         else if(mKeyInput[Qt::Key_J])
         {
-            if((vel + -rgt*ms).length() < maxms || (vel + -rgt*ms).length() < vel.length())
-            {
-                qDebug() << "l";
+            if((vel + -rgt*ms).length() < maxms || (vel + -rgt*ms).length() <= vel.length())
                 vel += -rgt * ms;
-            }
         }
     }
 
