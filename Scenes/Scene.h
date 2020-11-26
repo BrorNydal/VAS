@@ -15,7 +15,14 @@
 #include "physicsengine.h"
 
 
-
+/*
+ * WASD - camera movement.
+ * IJKL - player movement.
+ * Right Mouse Button enables camera movement.
+ * E - locks or unlocks camera from player character
+ * Q - resets current scene
+ * Space - next scene
+ */
 class Scene : public QOpenGLFunctions_4_1_Core
 {
 protected:

@@ -64,6 +64,15 @@ protected:
     //The QWindow that we inherit from has these functions to capture
     //mouse and keyboard. Uncomment to use (you also have to make the definitions of these functions
     //
+
+    /*
+     * WASD - camera movement.
+     * IJKL - player movement.
+     * Right Mouse Button enables camera movement.
+     * E - locks or unlocks camera from player character
+     * Q - resets current scene
+     * Space - next scene
+     */
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
